@@ -4,18 +4,32 @@ import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:todoey_flutter/colors.dart';
 
 class TaskTile extends StatelessWidget {
+  final bool isChecked;
+  final String taskTitle;
+  final Function checkBoxCallback;
+  final Function longPressCallBack;
+
+  TaskTile({this.isChecked, this.taskTitle, this.checkBoxCallback, this.longPressCallBack});
+
   @override
   Widget build(BuildContext context) {
     return Container(
 //      color: Colors.grey[100],
       decoration: BoxDecoration(
-        color: Colors.grey[100],
-        border: Border.all(color: Colors.grey[100]),
-        borderRadius: BorderRadius.circular(15.0)
-      ),
+          color: Colors.grey[100],
+          border: Border.all(color: Colors.grey[100]),
+          borderRadius: BorderRadius.circular(15.0)),
       margin: EdgeInsets.only(bottom: 8.0),
       child: ListTile(
-        title: Text('This is a task.',style: TextStyle(color: textColor),),
+        onLongPress: longPressCallBack,
+        title: Text(
+          taskTitle,
+          style: TextStyle(
+              color: textColor,
+              decoration: isChecked ? TextDecoration.lineThrough : null,
+              decorationThickness: 5.85
+          ),
+        ),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: <Widget>[
@@ -25,7 +39,11 @@ class TaskTile extends StatelessWidget {
             ),
             Icon(EvaIcons.twitterOutline),
             Checkbox(
-              value: false,
+              activeColor: addButtonColor,
+              value: isChecked,
+              onChanged: (newValue) {
+                checkBoxCallback(newValue);
+              },
             ),
           ],
         ),
@@ -33,3 +51,8 @@ class TaskTile extends StatelessWidget {
     );
   }
 }
+
+
+
+
+

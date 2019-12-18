@@ -2,95 +2,296 @@ import 'package:flutter/material.dart';
 import 'package:todoey_flutter/widgets/tasks.dart';
 import 'package:todoey_flutter/colors.dart';
 import 'package:fab_circular_menu/fab_circular_menu.dart';
+import 'package:todoey_flutter/screens/add_task_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:todoey_flutter/models/task_data.dart';
 
-class TasksScreen extends StatelessWidget {
+import 'package:todoey_flutter/models/task.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:todoey_flutter/util/database_helper.dart';
+import 'dart:async';
+
+import 'package:todoey_flutter/screens/long_period_tasks_screen.dart';
+
+import 'package:todoey_flutter/parts/fab_bottom_app_bar.dart';
+import 'package:todoey_flutter/parts/fab_with_icons.dart';
+import 'package:todoey_flutter/parts/layout.dart';
+
+class TasksScreen extends StatefulWidget {
+  @override
+  _TasksScreenState createState() => _TasksScreenState();
+}
+
+class _TasksScreenState extends State<TasksScreen> {
+  DatabaseHelper databaseHelper = DatabaseHelper();
+  List<Task> taskList;
+  int count = 0;
+
   @override
   Widget build(BuildContext context) {
+    if (taskList == null) {
+      taskList = List<Task>();
+      updateListView();
+    }
+    double screenWidth = MediaQuery.of(context).size.width;
+    bool isModalOpen = false;
     return Scaffold(
 //      appBar: AppBar(
 //
 //      ),
-    backgroundColor: mainColor,
-//      floatingActionButton: FloatingActionButton(
-//        backgroundColor: addButtonColor,
-//        child: Icon(Icons.add, size: 40.0,),
-//        onPressed: () {
-//        },
-//      ),
-      body: FabCircularMenu(
-        fabColor: addButtonColor,
-          child: Container(
-            child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Container(
-                padding: EdgeInsets.only(
-                    top: 30.0, left: 30.0, right: 30.0, bottom: 30.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    Container(
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(48.0),
-                          boxShadow: [new BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 20.0
-                          )]
-                      ),
-                      child: CircleAvatar(
-                        child: Icon(
-                          Icons.list,
-                          size: 30.0,
-                          color: textColor,
-                        ),
-                        backgroundColor: Colors.white,
-                        radius: 30.0,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 10.0,
-                    ),
-                    Text(
-                      'Twisk',
-                      style: TextStyle(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // showModalBottomSheet(
+          //     context: context,
+          //     isScrollControlled: true,
+          //     builder: (context) {
+          //       return AddTaskScreen('ADD', Task('', '', ''));
+          //     });
+          navigateToDetail(Task('', '', ''), 'Add Task');
+        },
+        backgroundColor: addButtonColor,
+        tooltip: 'Add Task',
+        elevation: 2.0,
+        child: Icon(
+          Icons.add,
+          size: 30,
+          color: Colors.white,
+        ),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+
+      bottomNavigationBar: FABBottomAppBar(
+        centerItemText: 'Add',
+        color: Colors.grey,
+        selectedColor: addButtonColor,
+        notchedShape: CircularNotchedRectangle(),
+        // onTabSelected: () {
+        //   Navigator.push(context, MaterialPageRoute(builder: (context) => LongPeriodTasksScreen())),
+        // },
+        items: [
+          FABBottomAppBarItem(iconData: Icons.calendar_today, text: 'Short'),
+          FABBottomAppBarItem(iconData: Icons.date_range, text: 'Long'),
+        ],
+      ),
+
+      //  bottomNavigationBar: BottomAppBar(
+      //   child: Row(
+      //     mainAxisSize: MainAxisSize.max,
+      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //     children: <Widget>[],
+      //   ),
+      //   shape: CircularNotchedRectangle(),
+      //   color: mainColor,
+      //   // color: transparentColor,
+      // ),
+
+      // bottomNavigationBar: BottomNavigationBar(
+      //   backgroundColor: bottomBarColor,
+      //   items: <BottomNavigationBarItem>[
+      //   BottomNavigationBarItem(
+      //     icon: Icon(
+      //       Icons.calendar_today,
+      //       size: 35,
+      //       ),
+      //     title: Text('short'),
+      //   ),
+      //   BottomNavigationBarItem(
+      //     icon: Icon(
+      //       Icons.date_range,
+      //       size: 35,
+      //       ),
+      //     title: Text('long'),
+      //   ),
+      //   ],
+      // ),
+      backgroundColor: mainColor,
+      body:
+          // FabCircularMenu(
+          //   fabColor: addButtonColor,
+          // child:
+          Container(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              padding: EdgeInsets.only(
+                  top: 45.0, left: 30.0, right: 30.0, bottom: 20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(48.0),
+                        boxShadow: [
+                          new BoxShadow(color: Colors.black12, blurRadius: 20.0)
+                        ]),
+                    child: CircleAvatar(
+                      child: Icon(
+                        Icons.list,
+                        size: 30.0,
                         color: textColor,
-                        fontSize: 50.0,
-                        fontWeight: FontWeight.w700,
                       ),
+                      backgroundColor: Colors.white,
+                      radius: 30.0,
                     ),
-                    Text(
-                      '12 Tasks',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 18.0,
-                      ),
+                  ),
+                  SizedBox(
+                    height: 10.0,
+                  ),
+                  Text(
+                    'Twisk',
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 50.0,
+                      fontWeight: FontWeight.w700,
                     ),
-                  ],
-                ),
+                  ),
+                  Text(
+                    // '${Provider.of<TaskData>(context).taskCount} Tasks', // ! どっちか
+                    '${taskList.length} Tasks',
+                    style: TextStyle(
+                      color: textColor,
+                      fontSize: 18.0,
+                    ),
+                  ),
+                ],
               ),
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20.0),
-                  decoration: BoxDecoration(
+            ),
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(20.0),
-                        topRight: Radius.circular(20.0)),
-                  ),
-                  child: TasksList(),
-                ),
+                      topLeft: Radius.circular(20.0),
+                      topRight: Radius.circular(20.0),
+                      bottomLeft: Radius.circular(20.0),
+                      bottomRight: Radius.circular(20.0),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: shadowColor,
+                        offset: Offset(2, 2),
+                      )
+                    ]),
+                // child: TasksList(), // ! どっちか
+                margin: EdgeInsets.only(bottom: 10),
+                child: getTaskListView(),
               ),
-            ],
-          ),
-          ),
-          ringColor: Colors.black12,
-          options: <Widget>[
-            IconButton(icon: Icon(Icons.add), onPressed: () {}, iconSize: 48.0, color: addButtonColor),
-            IconButton(icon: Icon(Icons.calendar_today), onPressed: () {}, iconSize: 48.0, color: addButtonColor),
-            IconButton(icon: Icon(Icons.date_range), onPressed: () {}, iconSize: 48.0, color: addButtonColor),
+            ),
           ],
+        ),
       ),
+      // ?
+      // ringColor: transparentColor,
+      // ringDiameter: screenWidth * 0.77,
+      // options: <Widget>[
+      //   IconButton(
+      //       icon: Icon(Icons.add),
+      //       onPressed: () {
+      //         showModalBottomSheet(
+      //             context: context,
+      //             isScrollControlled: true,
+      //             builder: (context) => AddTaskScreen());
+      //       },
+      //       iconSize: 48.0,
+      //       color: addButtonColor),
+      //   IconButton(
+      //       icon: Icon(Icons.calendar_today),
+      //       onPressed: () {},
+      //       iconSize: 48.0,
+      //       color: addButtonColor),
+      //   IconButton(
+      //       icon: Icon(Icons.date_range),
+      //       onPressed: () {},
+      //       iconSize: 48.0,
+      //       color: addButtonColor),
+      // ],
+      // ),
+      // ?
       drawer: Drawer(),
     );
+  }
+
+  ListView getTaskListView() {
+    return ListView.builder(
+      itemCount: count,
+      itemBuilder: (BuildContext context, int index) {
+        return Card(
+          color: bottomBarColor,
+          elevation: 2.0,
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: Colors.amber,
+              child: Text(getFirstLetter(this.taskList[index].name),
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+            ),
+            title: Text(this.taskList[index].name,
+                style: TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Text(this.taskList[index].description),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                GestureDetector(
+                  child: Icon(
+                    Icons.delete,
+                    color: Colors.red,
+                  ),
+                  onTap: () {
+                    _delete(context, taskList[index]);
+                  },
+                ),
+              ],
+            ),
+            onTap: () {
+              debugPrint("ListTile Tapped");
+              // navigateToDetail(this.taskList[index], 'Edit Todo');
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  getFirstLetter(String title) {
+    return title.substring(0, 2);
+  }
+
+  void _delete(BuildContext context, Task todo) async {
+    int result = await databaseHelper.deleteTask(todo.id);
+    if (result != 0) {
+      updateListView();
+    }
+  }
+
+  // void _showSnackBar(BuildContext context, String message) {
+  //   final snackBar = SnackBar(content: Text(message));
+  //   Scaffold.of(context).showSnackBar(snackBar);
+  // }
+
+  void navigateToDetail(Task task, String name) async {
+    bool result = await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return AddTaskScreen('ADD', Task('', '', ''));
+        });
+    print(result);
+    if (result == true) {
+      updateListView();
+    }
+  }
+
+  void updateListView() {
+    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
+    dbFuture.then((database) {
+      Future<List<Task>> taskListFuture = databaseHelper.getTaskList();
+      taskListFuture.then((taskList) {
+        setState(() {
+          this.taskList = taskList;
+          this.count = taskList.length;
+        });
+      });
+    });
   }
 }

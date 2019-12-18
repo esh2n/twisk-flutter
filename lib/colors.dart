@@ -15,3 +15,7 @@ class HexColor extends Color {
 Color mainColor = HexColor("#95E6DA");
 Color addButtonColor = HexColor("#4997A5");
 Color textColor = HexColor("#707070");
+Color addScreenColor = HexColor("#757575");
+Color shadowColor = Color.fromRGBO(0, 0, 0, 0.16);
+Color transparentColor = Color.fromRGBO(0, 0, 0, 0.025);
+Color bottomBarColor = HexColor("#f5f5f5");
