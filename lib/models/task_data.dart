@@ -1,36 +1,38 @@
-// import 'package:flutter/foundation.dart';
-// import 'package:todoey_flutter/models/task.dart';
-// import 'dart:collection';
+import 'package:flutter/material.dart';
+import 'package:twisk/models/task.dart';
+import 'dart:collection';
 
-// class TaskData extends ChangeNotifier {
+import 'package:sqflite/sqflite.dart';
+import 'package:twisk/util/database_helper.dart';
+import 'dart:async';
 
-//   List<Task> _tasks = [
-//     // Task(id: 2, name: 'Buy milk'),
-//     // Task(id: 3, name: 'Buy eggs'),
-//     // Task(id: 4, name: 'Buy bread'),
-//   ];
+class TaskData extends ChangeNotifier {
+  DatabaseHelper databaseHelper = DatabaseHelper();
+  List<Task> taskList;
 
-//   UnmodifiableListView<Task> get tasks  {
-//     return UnmodifiableListView(_tasks);
-//   }
+  UnmodifiableListView<Task> get tasks {
+    return UnmodifiableListView(taskList);
+  }
 
-//   int get taskCount {
-//     return _tasks.length;
-//   }
+  int get taskCount {
+    return taskList.length;
+  }
 
-//   void addTask(String newTaskTitle) {
-//     final task = Task(name: newTaskTitle);
-//     _tasks.add(task);
-//     notifyListeners();
-//   }
+  void updateListView() {
+    final Future<Database> dbFuture = databaseHelper.initializeDatabase();
+    dbFuture.then((database) {
+      Future<List<Task>> taskListFuture = databaseHelper.getTaskList();
+      taskListFuture.then((taskList) {
+        this.taskList = taskList;
+        notifyListeners();
+      });
+    });
+  }
 
-//   void updateTask(Task task) {
-//     task.toggleDone();
-//     notifyListeners();
-//   }
-
-//   void deleteTask(Task task) {
-//     _tasks.remove(task);
-//     notifyListeners();
-//   }
-// }
+    void delete(BuildContext context, Task task) async {
+    int result = await databaseHelper.deleteTask(task.id);
+    if (result != 0) {
+      updateListView();
+    }
+  }
+}

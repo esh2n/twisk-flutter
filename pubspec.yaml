@@ -1,4 +1,4 @@
-name: todoey_flutter
+name: twisk
 description: A new Flutter application.
 
 # The following defines the version and build number for your application.
@@ -31,6 +31,8 @@ dependencies:
   path_provider: any
   intl: ^0.16.0
   flutter_statusbarcolor: ^0.2.3
+  webview_flutter: ^0.3.18+1
+  twitter_api: ^0.1.2
 
 dev_dependencies:
   flutter_test:

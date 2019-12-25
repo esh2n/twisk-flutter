@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
-import 'package:todoey_flutter/colors.dart';
+import 'package:twisk/colors.dart';
 
 class TaskTile extends StatelessWidget {
   final bool isChecked;

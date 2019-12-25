@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 
 class FABBottomAppBarItem {
@@ -42,6 +41,7 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     widget.onTabSelected(index);
     setState(() {
       _selectedIndex = index;
+      print(_selectedIndex);
     });
   }
 
