@@ -1,11 +1,9 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twisk/colors.dart';
-import 'package:twisk/screens/add_task_screen.dart';
 import 'package:twisk/models/task.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:twisk/util/database_helper.dart';
-import 'dart:async';
 import 'package:twisk/models/task_data.dart';
 
 class TaskScreenTask extends StatefulWidget {
@@ -40,14 +38,35 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                       boxShadow: [
                         new BoxShadow(color: Colors.black12, blurRadius: 20.0)
                       ]),
-                  child: CircleAvatar(
-                    child: Icon(
-                      Icons.list,
-                      size: 30.0,
-                      color: textColor,
-                    ),
-                    backgroundColor: Colors.white,
-                    radius: 30.0,
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(right: 30),
+                        child: CircleAvatar(
+                          child: Icon(
+                            Icons.list,
+                            size: 30.0,
+                            color: textColor,
+                          ),
+                          backgroundColor: Colors.white,
+                          radius: 30.0,
+                        ),
+                      ),
+                      Container(
+                        width: 60,
+                        height: 60,
+                        margin: EdgeInsets.only(right: 30),
+                        child: RawMaterialButton(
+                          onPressed: () {
+                            print("show drawer button tapped");
+                            Scaffold.of(context).openDrawer();
+                          },
+                          shape: new CircleBorder(),
+                          elevation: 0.0,
+                        ),
+                      )
+                    ],
                   ),
                 ),
                 SizedBox(
@@ -109,7 +128,7 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
               backgroundColor: Colors.amber,
               child: Text(
                   getFirstLetter(
-                  Provider.of<TaskData>(context).taskList[index].name),
+                      Provider.of<TaskData>(context).taskList[index].name),
                   style: TextStyle(fontWeight: FontWeight.bold)),
             ),
             title: Text(Provider.of<TaskData>(context).taskList[index].name,
@@ -126,7 +145,7 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                   ),
                   onTap: () {
                     _delete(context,
-                    Provider.of<TaskData>(context).taskList[index]);
+                        Provider.of<TaskData>(context).taskList[index]);
                   },
                 ),
               ],

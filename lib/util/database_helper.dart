@@ -9,6 +9,9 @@ class DatabaseHelper {
   static Database _database; // Singleton Database
 
   String taskTable = 'task_table';
+  String weeklyTaskTable = 'weekly_task_table';
+  String monthlyTaskTable = 'monthly_task_table';
+  String yearlyTaskTable = 'yearly_task_table';
   String colId = 'id';
   String colName = 'name';
   String colDescription = 'description';
@@ -44,7 +47,10 @@ class DatabaseHelper {
 
   void _createDb(Database db, int newVersion) async {
     await db.execute(
-        'CREATE TABLE $taskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)');
+        'CREATE TABLE $taskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)'
+        'CREATE TABLE $weeklyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)'
+        'CREATE TABLE $monthlyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)'
+        'CREATE TABLE $yearlyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)');
   }
 
   // Fetch Operation: Get all todo objects from database
@@ -52,7 +58,7 @@ class DatabaseHelper {
     Database db = await this.database;
 
 //		var result = await db.rawQuery('SELECT * FROM $todoTable order by $colTitle ASC');
-    var result = await db.query(taskTable, orderBy: '$colName ASC');
+    var result = await db.query(taskTable, orderBy: '$colDate DESC');
     return result;
   }
 
