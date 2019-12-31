@@ -10,6 +10,11 @@ import 'package:twisk/parts/fab_bottom_app_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:twisk/models/task_data.dart';
 
+import 'package:twisk/util/twitterLogin.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:twisk/models/user.dart';
+
 class TasksScreen extends StatefulWidget {
   @override
   _TasksScreenState createState() => _TasksScreenState();
@@ -21,33 +26,48 @@ class _TasksScreenState extends State<TasksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    bool _isDarkMode = Provider.of<TaskData>(context).isDarkMode;
+    // Provider.of<TaskData>(context).updateListView();
     if (Provider.of<TaskData>(context).taskList == null) {
       Provider.of<TaskData>(context).taskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView();
+      Provider.of<TaskData>(context).updateListView(0);
+    }
+    if (Provider.of<TaskData>(context).weeklyTaskList == null) {
+      Provider.of<TaskData>(context).weeklyTaskList = List<Task>();
+      Provider.of<TaskData>(context).updateListView(1);
+    }
+    if (Provider.of<TaskData>(context).monthlyTaskList == null) {
+      Provider.of<TaskData>(context).monthlyTaskList = List<Task>();
+      Provider.of<TaskData>(context).updateListView(2);
+    }
+    if (Provider.of<TaskData>(context).yearlyTaskList == null) {
+      Provider.of<TaskData>(context).yearlyTaskList = List<Task>();
+      Provider.of<TaskData>(context).updateListView(3);
     }
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           navigateToDetail(Task('', '', ''), 'Add Task');
         },
-        backgroundColor: addButtonColor,
-        tooltip: selectedIndex == 0 ? 'Add Task' : 'Login Twitter',
+        backgroundColor: getButtonColor(),
+        tooltip: 'Add Task',
         elevation: 2.0,
         child: Icon(
-          selectedIndex == 0 ? Icons.add : Icons.accessibility_new,
+          Icons.add,
           size: 30,
           color: Colors.white,
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: FABBottomAppBar(
-        centerItemText: selectedIndex == 0 ? 'Add' : 'Login',
+        centerItemText: 'Add',
         color: Colors.grey,
-        selectedColor: addButtonColor,
+        selectedColor: getBottomColor(),
         notchedShape: CircularNotchedRectangle(),
         onTabSelected: (index) {
-          print(index);
           setState(() {
+            getUserProfile();
+            getDisplayName();
             selectedIndex = index;
             print(selectedIndex);
           });
@@ -57,16 +77,16 @@ class _TasksScreenState extends State<TasksScreen> {
           FABBottomAppBarItem(iconData: Icons.account_circle, text: 'Login'),
         ],
       ),
-      backgroundColor: mainColor,
+      backgroundColor: getMainColor(),
       body: _buildChild(),
       drawer: Drawer(
         elevation: 10,
-        child: ListView(
-          padding: const EdgeInsets.only(top: 0),
+        child: Column(
+          // padding: const EdgeInsets.only(top: 0),
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text("sasa"),
-              accountEmail: Text("hoge"),
+              accountName: Text(""),
+              accountEmail: Text("@sasasasa"),
               currentAccountPicture: CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.white,
@@ -81,19 +101,65 @@ class _TasksScreenState extends State<TasksScreen> {
             ListTile(
               title: Text(
                   'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
-              trailing: Icon(Icons.arrow_upward),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                setState(() {
+                  Provider.of<TaskData>(context).selectedTask = 0;
+                });
+                print(Provider.of<TaskData>(context).selectedTask);
+                Navigator.pop(context, true);
+              },
             ),
             ListTile(
-              title: Text('Weekly Tasks'),
-              trailing: Icon(Icons.arrow_upward),
+              title: Text(
+                  // 'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
+                  'Weekly Tasks  (${Provider.of<TaskData>(context).weeklyTaskCount})'),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                setState(() {
+                  Provider.of<TaskData>(context).selectedTask = 1;
+                });
+                print(Provider.of<TaskData>(context).selectedTask);
+                Navigator.pop(context, true);
+              },
             ),
             ListTile(
-              title: Text('Monthly Tasks'),
-              trailing: Icon(Icons.arrow_upward),
+              title: Text(
+                  // 'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
+                  'Monthly Tasks  (${Provider.of<TaskData>(context).monthlyTaskCount})'),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                setState(() {
+                  Provider.of<TaskData>(context).selectedTask = 2;
+                });
+                print(Provider.of<TaskData>(context).selectedTask);
+                Navigator.pop(context, true);
+              },
             ),
             ListTile(
-              title: Text('Yearly Tasks'),
-              trailing: Icon(Icons.arrow_upward),
+              title: Text(
+                  // 'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
+                  'Yearly Tasks  (${Provider.of<TaskData>(context).yearlyTaskCount})'),
+              trailing: Icon(Icons.arrow_forward_ios),
+              onTap: () {
+                setState(() {
+                  Provider.of<TaskData>(context).selectedTask = 3;
+                });
+                print(Provider.of<TaskData>(context).selectedTask);
+                Navigator.pop(context, true);
+              },
+            ),
+            Divider(),
+            Expanded(
+              child: Container(),
+            ),
+            Divider(),
+            SwitchListTile(
+              title: Text('Color Mode'),
+              value: _isDarkMode,
+              onChanged: (bool value) {
+                Provider.of<TaskData>(context).toggleColorMode();
+              },
             ),
             Divider(),
             ListTile(
@@ -103,6 +169,9 @@ class _TasksScreenState extends State<TasksScreen> {
                 Navigator.pop(context, true);
               },
             ),
+            Container(
+              height: 30.0,
+            ),
           ],
         ),
       ),
@@ -111,7 +180,8 @@ class _TasksScreenState extends State<TasksScreen> {
 
   Widget _buildChild() {
     if (this.selectedIndex == 1) {
-      return Container();
+      // return LoginScreen();
+      return TwitterOauthPage();
     } else {
       return TaskScreenTask();
     }
@@ -126,11 +196,62 @@ class _TasksScreenState extends State<TasksScreen> {
         context: context,
         isScrollControlled: true,
         builder: (context) {
-          return AddTaskScreen('ADD', Task('', '', ''));
+          return AddTaskScreen(name, task);
         });
     print(result);
     if (result == true) {
-      Provider.of<TaskData>(context).updateListView();
+      Provider.of<TaskData>(context)
+          .updateListView(Provider.of<TaskData>(context).selectedTask);
     }
+  }
+
+  Color getMainColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return mainColorDark;
+    } else {
+      return mainColor;
+    }
+  }
+
+  Color getButtonColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return addButtonColorDark;
+    } else {
+      return addButtonColor;
+    }
+  }
+
+  Color getBottomColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return bottomBarColor;
+    } else {
+      return addButtonColor;
+    }
+  }
+
+  void getUserProfile() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseUser user = await _auth.currentUser();
+    print(user.displayName);
+    // if (user) {}
+  }
+
+  getDisplayName() {
+    // final FirebaseAuth _auth = FirebaseAuth.instance;
+    // FirebaseUser user = await _auth.currentUser();
+    // if (user != null) {
+    //   String displayName = user.displayName;
+    //   return displayName;
+    // } else {
+    //   return "";
+    // }
+
+    // User user;
+    // getTwitterRequest();
+    // String sasa = user.sample();
+    // print(sasa);
   }
 }

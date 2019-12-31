@@ -27,13 +27,20 @@ dependencies:
   eva_icons_flutter: 2.0.0
   fab_circular_menu: ^0.1.3
   provider: ^3.2.0
-  sqflite: any
-  path_provider: any
+  sqflite: ^1.2.0
+  path_provider: ^1.5.1
   intl: ^0.16.0
   flutter_statusbarcolor: ^0.2.3
   webview_flutter: ^0.3.18+1
   twitter_api: ^0.1.2
   kf_drawer: ^1.1.2
+  path: ^1.6.4
+  synchronized: ^2.1.1
+  firebase_auth: ^0.15.3
+  twitter_oauth:
+    git:
+      url: https://github.com/0maru/twitter_oauth.git
+      ref: master
 
 dev_dependencies:
   flutter_test:

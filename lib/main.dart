@@ -19,8 +19,14 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           home: TasksScreen(),
           theme: ThemeData(
+            brightness: Brightness.light,
             fontFamily: 'AmericanTypewriter',
             primaryColor: mainColor,
+          ),
+          darkTheme: ThemeData(
+            brightness: Brightness.dark,
+            fontFamily: 'AmericanTypewriter',
+            primaryColor: mainColorDark,
           ),
         ));
   }

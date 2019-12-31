@@ -35,16 +35,15 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     descriptionController.text = task.description;
 
     double containerHeight = MediaQuery.of(context).size.height;
-    String newTaskTitle;
 
     return Container(
       height: containerHeight * .85,
-      color: addScreenColor,
+      color: getAddScreenColor(),
       child: Container(
         padding:
             EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0, bottom: 20.0),
         decoration: BoxDecoration(
-            color: Colors.white,
+            color: getListBackGroundColor(),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20.0),
               topRight: Radius.circular(20.0),
@@ -53,16 +52,17 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Text(
-              "Add Task",
+              appBarTitle,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 30.0,
-                color: addButtonColor,
+                color: getAddButtonColor(),
               ),
             ),
             Padding(
               padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
               child: TextField(
+                autofocus: true,
                 controller: titleController,
                 style: textStyle,
                 onChanged: (value) {
@@ -70,14 +70,20 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   updateTitle();
                 },
                 decoration: InputDecoration(
-                    labelText: 'Title',
-                    labelStyle: textStyle,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.0))),
+                  labelText: 'Title',
+                  labelStyle: textStyle,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: getFocusedBorderColor(),
+                    ),
+                  ),
+                ),
               ),
             ),
-
-            // Third Element
             Padding(
               padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
               child: TextField(
@@ -88,43 +94,67 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                   updateDescription();
                 },
                 decoration: InputDecoration(
-                    labelText: 'Description',
-                    labelStyle: textStyle,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(5.0))),
-              ),
-            ),
-            // TextField(
-            //   autofocus: true,
-            //   textAlign: TextAlign.center,
-            //   onChanged: (newText) {
-            //     newTaskTitle = newText;
-            //   },
-            // ),
-            // TextField(
-            //   autofocus: true,
-            //   textAlign: TextAlign.center,
-            //   onChanged: (newText) {
-            //     newTaskTitle = newText;
-            //   },
-            // ),
-            FlatButton(
-              child: Text(
-                'Save',
-                style: TextStyle(
-                  color: Colors.white,
+                  labelText: 'Description',
+                  labelStyle: textStyle,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: getFocusedBorderColor(),
+                    ),
+                  ),
                 ),
               ),
-              color: addButtonColor,
-              onPressed: () {
-                // Provider.of<TaskData>(context).addTask(newTaskTitle);
-                _save();
-              },
+            ),
+            Row(
+              children: <Widget>[
+                Expanded(
+                  child: FlatButton(
+                    child: Text(
+                      'Save',
+                      style: TextStyle(
+                        color: getAddButtonTextColor(),
+                      ),
+                    ),
+                    color: getAddButtonColor(),
+                    onPressed: () {
+                      _save();
+                    },
+                  ),
+                ),
+                Container(
+                  width: 20.0,
+                ),
+                getDeleteButton()
+              ],
             ),
           ],
         ),
       ),
     );
+  }
+
+  Widget getDeleteButton() {
+    if (this.appBarTitle == 'Edit Task') {
+      return Expanded(
+        child: FlatButton(
+          child: Text(
+            'Delete',
+            style: TextStyle(
+              color: getAddButtonTextColor(),
+            ),
+          ),
+          color: Colors.redAccent,
+          onPressed: () {
+            _delete();
+          },
+        ),
+      );
+    } else {
+      return Container();
+    }
   }
 
   void updateTitle() {
@@ -141,11 +171,11 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     task.date = DateFormat.yMMMd().format(DateTime.now());
     int result;
     if (task.id != null) {
-      // Case 1: Update operation
-      result = await helper.updateTask(task);
+      result = await helper.updateTask(
+          task, Provider.of<TaskData>(context).selectedTask);
     } else {
-      // Case 2: Insert Operation
-      result = await helper.insertTask(task);
+      result = await helper.insertTask(
+          task, Provider.of<TaskData>(context).selectedTask);
     }
 
     if (result != 0) {
@@ -157,15 +187,58 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void _delete() async {
     Navigator.pop(context, true);
-    // Case 1: If user is trying to delete the NEW todo i.e. he has come to
-    // the detail page by pressing the FAB of todoList page.
     if (task.id == null) {
       return;
     }
 
-    // Case 2: User is trying to delete the old todo that already has a valid ID.
-    int result = await helper.deleteTask(task.id);
+    int result = await helper.deleteTask(
+        task.id, Provider.of<TaskData>(context).selectedTask);
     if (result != 0) {
     } else {}
+  }
+
+  Color getListBackGroundColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return listBackGroundColor;
+    } else {
+      return Colors.white;
+    }
+  }
+
+  Color getAddScreenColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return addScreenColorDark;
+    } else {
+      return addScreenColor;
+    }
+  }
+
+  Color getAddButtonTextColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return listBackGroundColor;
+    } else {
+      return Colors.white;
+    }
+  }
+
+  Color getAddButtonColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return textColorDark;
+    } else {
+      return addButtonColor;
+    }
+  }
+
+  Color getFocusedBorderColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return Colors.white;
+    } else {
+      return mainColor;
+    }
   }
 }

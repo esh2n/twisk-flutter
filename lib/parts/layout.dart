@@ -1,5 +1,3 @@
-// code from: https://github.com/matthew-carroll/flutter_ui_challenge_feature_discovery
-// TODO: Use https://github.com/matthew-carroll/fluttery/blob/master/lib/src/layout_overlays.dart
 import 'package:flutter/material.dart';
 
 class AnchoredOverlay extends StatelessWidget {
@@ -16,12 +14,14 @@ class AnchoredOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Container(
-      child: new LayoutBuilder(builder: (BuildContext context, BoxConstraints constraints) {
+      child: new LayoutBuilder(
+          builder: (BuildContext context, BoxConstraints constraints) {
         return new OverlayBuilder(
           showOverlay: showOverlay,
           overlayBuilder: (BuildContext overlayContext) {
             RenderBox box = context.findRenderObject() as RenderBox;
-            final center = box.size.center(box.localToGlobal(const Offset(0.0, 0.0)));
+            final center =
+                box.size.center(box.localToGlobal(const Offset(0.0, 0.0)));
 
             return overlayBuilder(overlayContext, center);
           },

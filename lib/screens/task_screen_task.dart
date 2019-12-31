@@ -5,6 +5,7 @@ import 'package:twisk/colors.dart';
 import 'package:twisk/models/task.dart';
 import 'package:twisk/util/database_helper.dart';
 import 'package:twisk/models/task_data.dart';
+import 'package:twisk/screens/add_task_screen.dart';
 
 class TaskScreenTask extends StatefulWidget {
   @override
@@ -18,9 +19,24 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
   @override
   Widget build(BuildContext context) {
     List<Task> taskList = Provider.of<TaskData>(context).tasks;
+    List<Task> weeklyTaskList = Provider.of<TaskData>(context).weeklyTasks;
+    List<Task> monthlyTaskList = Provider.of<TaskData>(context).monthlyTasks;
+    List<Task> yearlyTaskList = Provider.of<TaskData>(context).yearlyTasks;
     if (taskList == null) {
       taskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView();
+      Provider.of<TaskData>(context).updateListView(0);
+    }
+    if (weeklyTaskList == null) {
+      weeklyTaskList = List<Task>();
+      Provider.of<TaskData>(context).updateListView(1);
+    }
+    if (monthlyTaskList == null) {
+      monthlyTaskList = List<Task>();
+      Provider.of<TaskData>(context).updateListView(2);
+    }
+    if (yearlyTaskList == null) {
+      yearlyTaskList = List<Task>();
+      Provider.of<TaskData>(context).updateListView(3);
     }
     return Container(
       child: Column(
@@ -45,11 +61,11 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                         margin: EdgeInsets.only(right: 30),
                         child: CircleAvatar(
                           child: Icon(
-                            Icons.list,
+                            Icons.dehaze,
                             size: 30.0,
-                            color: textColor,
+                            color: getTextColor(),
                           ),
-                          backgroundColor: Colors.white,
+                          backgroundColor: getButtonColor(),
                           radius: 30.0,
                         ),
                       ),
@@ -75,17 +91,29 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                 Text(
                   'Twisk',
                   style: TextStyle(
-                    color: textColor,
+                    color: getTextColor(),
                     fontSize: 50.0,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                Text(
-                  '${Provider.of<TaskData>(context).taskCount} Tasks',
-                  style: TextStyle(
-                    color: textColor,
-                    fontSize: 18.0,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: <Widget>[
+                    Text(
+                      '${getTaskCount()} Tasks',
+                      style: TextStyle(
+                        color: getTextColor(),
+                        fontSize: 18.0,
+                      ),
+                    ),
+                    Text(
+                      '- ${getTaskType()}',
+                      style: TextStyle(
+                        color: getTextColor(),
+                        fontSize: 18.0,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -94,7 +122,7 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.0),
               decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: getListBackGroundColor(),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20.0),
                     topRight: Radius.circular(20.0),
@@ -118,23 +146,36 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
 
   ListView getTaskListView() {
     return ListView.builder(
-      itemCount: Provider.of<TaskData>(context).taskCount,
+      itemCount: getTaskCount(),
       itemBuilder: (BuildContext context, int index) {
         return Card(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
           color: bottomBarColor,
           elevation: 2.0,
           child: ListTile(
             leading: CircleAvatar(
-              backgroundColor: Colors.amber,
+              backgroundColor: getBackGroundColor(),
               child: Text(
                   getFirstLetter(
-                      Provider.of<TaskData>(context).taskList[index].name),
-                  style: TextStyle(fontWeight: FontWeight.bold)),
+                    getTaskName(index),
+                  ),
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                  )),
             ),
-            title: Text(Provider.of<TaskData>(context).taskList[index].name,
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            title: Text(getTaskName(index),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: getListTextColor(),
+                )),
             subtitle: Text(
-                Provider.of<TaskData>(context).taskList[index].description),
+              getTaskDescription(index),
+              style: TextStyle(
+                color: Colors.grey,
+              ),
+              // Provider.of<TaskData>(context).taskList[index].description
+            ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
@@ -144,15 +185,16 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                     color: Colors.red,
                   ),
                   onTap: () {
-                    _delete(context,
-                        Provider.of<TaskData>(context).taskList[index]);
+                    print(Provider.of<TaskData>(context).selectedTask);
+                    _delete(context, getCurrentTaskList(context, index),
+                        Provider.of<TaskData>(context).selectedTask);
                   },
                 ),
               ],
             ),
-            onTap: () {
+            onLongPress: () {
               debugPrint("ListTile Tapped");
-              // navigateToDetail(this.taskList[index], 'Edit Todo');
+              navigateToDetail(this.getCurrentTask(index), 'Edit Task');
             },
           ),
         );
@@ -160,14 +202,202 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
     );
   }
 
+  Task getCurrentTask(int index) {
+    switch (Provider.of<TaskData>(context).selectedTask) {
+      case 0:
+        return Provider.of<TaskData>(context).taskList[index];
+        break;
+      case 1:
+        return Provider.of<TaskData>(context).weeklyTaskList[index];
+        break;
+      case 2:
+        return Provider.of<TaskData>(context).monthlyTaskList[index];
+        break;
+      case 3:
+        return Provider.of<TaskData>(context).yearlyTaskList[index];
+        break;
+      default:
+        return Provider.of<TaskData>(context).taskList[index];
+    }
+  }
+
+  void navigateToDetail(Task task, String name) async {
+    bool result = await showModalBottomSheet(
+        context: context,
+        isScrollControlled: true,
+        builder: (context) {
+          return AddTaskScreen(name, task);
+        });
+    print(result);
+    if (result == true) {
+      Provider.of<TaskData>(context)
+          .updateListView(Provider.of<TaskData>(context).selectedTask);
+    }
+  }
+
   getFirstLetter(String title) {
+    if (title.length < 2) {
+      return title.substring(0, 1);
+    }
     return title.substring(0, 2);
   }
 
-  void _delete(BuildContext context, Task task) async {
-    int result = await databaseHelper.deleteTask(task.id);
+  Color getBackGroundColor() {
+    switch (Provider.of<TaskData>(context).selectedTask) {
+      case 0:
+        return Colors.amber;
+        break;
+      case 1:
+        return Colors.lime;
+        break;
+      case 2:
+        return Colors.deepPurple;
+        break;
+      case 3:
+        return Colors.brown;
+        break;
+      default:
+        return Colors.amber;
+    }
+  }
+
+  Color getTextColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return textColorDark;
+    } else {
+      return textColor;
+    }
+  }
+
+  Color getListTextColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return listBackGroundColor;
+    } else {
+      return listBackGroundColor;
+    }
+  }
+
+  Color getButtonColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return addButtonColorDark;
+    } else {
+      return Colors.white;
+    }
+  }
+
+  Color getListBackGroundColor() {
+    var colorMode = MediaQuery.of(context).platformBrightness;
+    if (colorMode == Brightness.dark) {
+      return listBackGroundColor;
+    } else {
+      return Colors.white;
+    }
+  }
+
+  void _delete(BuildContext context, Task task, int index) async {
+    int result = await databaseHelper.deleteTask(task.id, index);
     if (result != 0) {
-      Provider.of<TaskData>(context).updateListView();
+      Provider.of<TaskData>(context).updateListView(index);
+    }
+  }
+
+  String getTaskName(int index) {
+    switch (Provider.of<TaskData>(context).selectedTask) {
+      case 0:
+        return Provider.of<TaskData>(context).taskList[index].name;
+        break;
+      case 1:
+        return Provider.of<TaskData>(context).weeklyTaskList[index].name;
+        break;
+      case 2:
+        return Provider.of<TaskData>(context).monthlyTaskList[index].name;
+        break;
+      case 3:
+        return Provider.of<TaskData>(context).yearlyTaskList[index].name;
+        break;
+      default:
+        return Provider.of<TaskData>(context).taskList[index].name;
+    }
+  }
+
+  String getTaskDescription(int index) {
+    switch (Provider.of<TaskData>(context).selectedTask) {
+      case 0:
+        return Provider.of<TaskData>(context).taskList[index].description;
+        break;
+      case 1:
+        return Provider.of<TaskData>(context).weeklyTaskList[index].description;
+        break;
+      case 2:
+        return Provider.of<TaskData>(context)
+            .monthlyTaskList[index]
+            .description;
+        break;
+      case 3:
+        return Provider.of<TaskData>(context).yearlyTaskList[index].description;
+        break;
+      default:
+        return Provider.of<TaskData>(context).taskList[index].description;
+    }
+  }
+
+  int getTaskCount() {
+    switch (Provider.of<TaskData>(context).selectedTask) {
+      case 0:
+        return Provider.of<TaskData>(context).taskCount;
+        break;
+      case 1:
+        return Provider.of<TaskData>(context).weeklyTaskCount;
+        break;
+      case 2:
+        return Provider.of<TaskData>(context).monthlyTaskCount;
+        break;
+      case 3:
+        return Provider.of<TaskData>(context).yearlyTaskCount;
+        break;
+      default:
+        return Provider.of<TaskData>(context).taskCount;
+    }
+  }
+
+  String getTaskType() {
+    switch (Provider.of<TaskData>(context).selectedTask) {
+      case 0:
+        return 'Daily Task';
+        break;
+      case 1:
+        return 'Weekly Task';
+        break;
+      case 2:
+        return 'Monthly Task';
+        break;
+      case 3:
+        return 'Yearly Task';
+        break;
+      default:
+        return 'Daily Task';
+    }
+  }
+
+  Task getCurrentTaskList(BuildContext context, int index) {
+    switch (Provider.of<TaskData>(context).selectedTask) {
+      case 0:
+        return Provider.of<TaskData>(context).taskList[index];
+        break;
+      case 1:
+        return Provider.of<TaskData>(context).weeklyTaskList[index];
+        break;
+      case 2:
+        return Provider.of<TaskData>(context).monthlyTaskList[index];
+        break;
+      case 3:
+        return Provider.of<TaskData>(context).yearlyTaskList[index];
+        break;
+      default:
+        return Provider.of<TaskData>(context).taskList[index];
     }
   }
 
