@@ -31,8 +31,9 @@ void getTwitterRequest() async {
   var res = await twitterRequest;
 
 // Print off the response
-  print(res.statusCode);
-  print(res.body);
+  // print(res.statusCode);
+  // print(res.body);
+  // print(res.screen_name);
 }
 
 String sample() {
@@ -61,3 +62,70 @@ String sample() {
 // print(res.statusCode);
 // print(res.body);
 // }
+class User {
+  int _id;
+  String _displayName;
+  String _screenName;
+  String _photoURL;
+  String _date;
+  String _userId;
+
+  User(this._displayName, this._screenName, this._photoURL, this._userId,
+      this._date);
+  User.withId(this._id, this._displayName, this._screenName, this._photoURL,
+      this._userId, this._date);
+
+  int get id => _id;
+  String get displayName => _displayName;
+  String get screenName => _screenName;
+  String get photoURL => _photoURL;
+  String get userId => _userId;
+  String get date => _date;
+
+  set displayName(String value) {
+    if (value.length <= 255) {
+      this._displayName = value;
+    }
+  }
+
+  set screenName(String value) {
+    if (value.length <= 255) {
+      this._screenName = value;
+    }
+  }
+
+  set photoURL(String value) {
+    this._photoURL = value;
+  }
+
+  set userId(String value) {
+    this._date = value;
+  }
+
+  set date(String value) {
+    this._photoURL = value;
+  }
+
+  Map<String, dynamic> toMap() {
+    var map = Map<String, dynamic>();
+    if (id != null) {
+      map['id'] = _id;
+    }
+    map['display_name'] = _displayName;
+    map['screen_name'] = _screenName;
+    map['photo_url'] = _photoURL;
+    map['user_id'] = _userId;
+    map['date'] = _date;
+
+    return map;
+  }
+
+  User.fromMapObject(Map<String, dynamic> map) {
+    this._id = map['id'];
+    this._displayName = map['display_name'];
+    this._screenName = map['screen_name'];
+    this._photoURL = map['photo_url'];
+    this._userId = map['user_id'];
+    this._date = map['date'];
+  }
+}

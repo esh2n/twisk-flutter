@@ -14,6 +14,8 @@ import 'package:twisk/util/twitterLogin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:twisk/models/user.dart';
+import 'package:twisk/apikey.dart';
+import 'package:twitter_oauth/twitter_oauth.dart';
 
 class TasksScreen extends StatefulWidget {
   @override
@@ -65,9 +67,9 @@ class _TasksScreenState extends State<TasksScreen> {
         selectedColor: getBottomColor(),
         notchedShape: CircularNotchedRectangle(),
         onTabSelected: (index) {
+          getUserProfile();
+
           setState(() {
-            getUserProfile();
-            getDisplayName();
             selectedIndex = index;
             print(selectedIndex);
           });
@@ -85,16 +87,51 @@ class _TasksScreenState extends State<TasksScreen> {
           // padding: const EdgeInsets.only(top: 0),
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountName: Text(""),
-              accountEmail: Text("@sasasasa"),
+              accountName: FutureBuilder<Widget>(
+                future: getUserName(),
+                builder:
+                    (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                  if (snapshot.hasData) {
+                    return snapshot.data;
+                  }
+                  return Text("ログインしてください");
+                },
+              ),
+              accountEmail: Text("sasa"),
+              // !TODO
+              // FutureBuilder<Widget>(
+              //     future: getScreenrName(),
+              //     builder:
+              //         (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+              //       if (snapshot.hasData) {
+              //         return snapshot.data;
+              //       }
+              //       return Text("");
+              //     }),
               currentAccountPicture: CircleAvatar(
                 radius: 30,
-                backgroundColor: Colors.white,
-                child: Icon(
-                  Icons.account_circle,
-                  size: 70,
-                  color: addButtonColor,
-                ),
+                backgroundColor: addButtonColor,
+                child: FutureBuilder<Widget>(
+                    future: getUserImage(),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                      if (snapshot.hasData) {
+                        return snapshot.data;
+                      }
+                      return ClipOval(
+                        child: Icon(
+                          Icons.account_circle,
+                          size: 70,
+                          color: Colors.white,
+                        ),
+                      );
+                    }),
+                // getUserImage(),
+                // Icon(
+                //   Icons.account_circle,
+                //   size: 70,
+                //   color: addButtonColor,
+                // ),
               ),
               // arrowColor: Colors.white,
             ),
@@ -187,6 +224,43 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
+  Future<Widget> getUserImage() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseUser user = await _auth.currentUser();
+    if (user != null) {
+      String userImageUrl = user.photoUrl;
+      return ClipOval(
+        child: Image.network(
+          userImageUrl,
+          height: 70,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    return ClipOval(
+      child: Icon(
+        Icons.account_circle,
+        size: 70,
+        color: Colors.white,
+      ),
+    );
+  }
+
+  Future<Widget> getUserName() async {
+    final FirebaseAuth _auth = FirebaseAuth.instance;
+    FirebaseUser user = await _auth.currentUser();
+    if (user != null) {
+      String userDisplayName = user.displayName;
+      return Text(userDisplayName);
+    }
+    return Text("ログインしてください。");
+  }
+
+  Future<Widget> getScreenrName() async {
+    String userScreenName = "@" + screenName;
+    return Text(userScreenName);
+  }
+
   getFirstLetter(String title) {
     return title.substring(0, 2);
   }
@@ -233,25 +307,12 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   void getUserProfile() async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    FirebaseUser user = await _auth.currentUser();
-    print(user.displayName);
-    // if (user) {}
-  }
-
-  getDisplayName() {
+    final sasa = await databaseHelper.getUserData();
+    if (sasa != null) {
+      print(sasa);
+    }
     // final FirebaseAuth _auth = FirebaseAuth.instance;
     // FirebaseUser user = await _auth.currentUser();
-    // if (user != null) {
-    //   String displayName = user.displayName;
-    //   return displayName;
-    // } else {
-    //   return "";
-    // }
-
-    // User user;
-    // getTwitterRequest();
-    // String sasa = user.sample();
-    // print(sasa);
+    // print(user.metadata);
   }
 }

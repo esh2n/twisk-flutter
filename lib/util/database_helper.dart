@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:synchronized/synchronized.dart';
+import 'package:twisk/models/user.dart';
 
 class DatabaseHelper {
   static DatabaseHelper _databaseHelper; // Singleton DatabaseHelper
@@ -18,6 +19,15 @@ class DatabaseHelper {
   String colName = 'name';
   String colDescription = 'description';
   String colDate = 'date';
+
+  String userSettingTable = 'user_setting_table';
+  String colDisplayName = 'display_name';
+  String colScreenName = 'screen_name';
+  String colPhotoURL = 'photo_url';
+  String colUserId = 'user_id';
+
+  String colorTable = 'colorTable';
+  String colColorMode = 'color';
 
   final _lock = new Lock();
 
@@ -46,31 +56,13 @@ class DatabaseHelper {
     // Get the directory path for both Android and iOS to store database.
     Directory directory = await getApplicationDocumentsDirectory();
     String path = p.join(directory.toString(), 'twisk.db');
-    // String path = directory.path + 'tasks.db';
-
-    // Open/create the database at a given path
     var tasksDatabase =
         await openDatabase(path, version: 1, onCreate: _createDb);
     return tasksDatabase;
   }
 
-  // void _createDb(Database db, int newVersion) async {
-  //   await db.execute(
-  //     'CREATE TABLE $taskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
-  //   );
-  //   await db.execute(
-  //     'CREATE TABLE $weeklyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
-  //   );
-  //   await db.execute(
-  //     'CREATE TABLE $monthlyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
-  //   );
-  //   await db.execute(
-  //     'CREATE TABLE $yearlyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
-  //   );
-  // }
-
   void _createDb(Database db, int newVersion) async {
-    print("======================================");
+    print("=================[CREATED DATABASE]=================");
     await db.transaction((txn) async {
       await txn.execute(
         'CREATE TABLE $taskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
@@ -84,34 +76,51 @@ class DatabaseHelper {
       await txn.execute(
         'CREATE TABLE $yearlyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
       );
+      await txn.execute(
+        'CREATE TABLE $userSettingTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colDisplayName TEXT, $colScreenName TEXT, $colPhotoURL TEXT, $colUserId TEXT, $colDate TEXT)',
+      );
+      await txn.execute(
+        'CREATE TABLE $colorTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colColorMode INTEGER)',
+      );
     });
   }
 
-  // Fetch Operation: Get all todo objects from database
+  Future<List<Map<String, dynamic>>> getUserData() async {
+    Database db = await this.database;
+    var result = await db.query(userSettingTable, orderBy: '$colId DESC');
+    return result;
+  }
+
   Future<List<Map<String, dynamic>>> getTaskMapList(int index) async {
     Database db = await this.database;
     switch (index) {
       case 0:
-        var result = await db.query(taskTable, orderBy: '$colDate ASC');
+        var result = await db.query(taskTable, orderBy: '$colId DESC');
         return result;
       case 1:
-        var result = await db.query(weeklyTaskTable, orderBy: '$colDate ASC');
+        var result = await db.query(weeklyTaskTable, orderBy: '$colId DESC');
         return result;
       case 2:
-        var result = await db.query(monthlyTaskTable, orderBy: '$colDate ASC');
+        var result = await db.query(monthlyTaskTable, orderBy: '$colId DESC');
         return result;
       case 3:
-        var result = await db.query(yearlyTaskTable, orderBy: '$colDate ASC');
+        var result = await db.query(yearlyTaskTable, orderBy: '$colId DESC');
         return result;
         break;
       default:
-        var result = await db.query(taskTable, orderBy: '$colDate ASC');
+        var result = await db.query(taskTable, orderBy: '$colId DESC');
         return result;
     }
   }
 
+  Future<int> insertUserData(User user) async {
+    Database db = await this.database;
+    var result = await db.insert(userSettingTable, user.toMap());
+    print("added user");
+    return result;
+  }
+
   Future<int> insertTask(Task task, int index) async {
-    // Insert Operation: Insert a todo object to database
     Database db = await this.database;
     switch (index) {
       case 0:
@@ -141,7 +150,6 @@ class DatabaseHelper {
     }
   }
 
-  // Update Operation: Update a todo object and save it to database
   Future<int> updateTask(Task task, int index) async {
     var db = await this.database;
     switch (index) {
@@ -179,7 +187,13 @@ class DatabaseHelper {
     return result;
   }
 
-  // Delete Operation: Delete a todo object from database
+  Future<int> deleteUserData(int id) async {
+    var db = await this.database;
+    int result =
+        await db.rawDelete('DELETE FROM $userSettingTable WHERE $colId = $id');
+    return result;
+  }
+
   Future<int> deleteTask(int id, int index) async {
     var db = await this.database;
     switch (index) {
@@ -210,7 +224,6 @@ class DatabaseHelper {
     }
   }
 
-  // Get number of todo objects in database
   Future<int> getCount() async {
     Database db = await this.database;
     List<Map<String, dynamic>> x =
@@ -219,19 +232,13 @@ class DatabaseHelper {
     return result;
   }
 
-  // Get the 'Map List' [ List<Map> ] and convert it to 'todo List' [ List<Todo> ]
   Future<List<Task>> getTaskList(int index) async {
-    var taskMapList =
-        await getTaskMapList(index); // Get 'Map List' from database
-    int count =
-        taskMapList.length; // Count the number of map entries in db table
-
+    var taskMapList = await getTaskMapList(index);
+    int count = taskMapList.length;
     List<Task> taskList = List<Task>();
-    // For loop to create a 'todo List' from a 'Map List'
     for (int i = 0; i < count; i++) {
       taskList.add(Task.fromMapObject(taskMapList[i]));
     }
-
     return taskList;
   }
 }
