@@ -14,12 +14,12 @@ class TaskData extends ChangeNotifier {
   List<Task> yearlyTaskList = List<Task>();
   int selectedTask = 0;
 
-  bool isDarkMode = false;
+  // bool isDarkMode = false;
 
-  void toggleColorMode() {
-    isDarkMode = !isDarkMode;
-    notifyListeners();
-  }
+  // void toggleColorMode() {
+  //   isDarkMode = !isDarkMode;
+  //   notifyListeners();
+  // }
 
   UnmodifiableListView<Task> get tasks {
     switch (this.selectedTask) {

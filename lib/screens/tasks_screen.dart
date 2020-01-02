@@ -3,20 +3,14 @@ import 'package:twisk/colors.dart';
 import 'package:twisk/screens/add_task_screen.dart';
 import 'package:twisk/models/task.dart';
 import 'package:twisk/util/database_helper.dart';
-import 'login_screen.dart';
 import 'package:twisk/screens/task_screen_task.dart';
 import 'package:twisk/parts/fab_bottom_app_bar.dart';
-
 import 'package:provider/provider.dart';
 import 'package:twisk/models/task_data.dart';
-
 import 'package:twisk/util/twitterLogin.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-import 'package:twisk/models/user.dart';
 import 'package:twisk/models/user_data.dart';
-import 'package:twisk/apikey.dart';
-import 'package:twitter_oauth/twitter_oauth.dart';
+import 'package:twisk/models/color_data.dart';
+import 'package:twisk/models/color.dart';
 
 class TasksScreen extends StatefulWidget {
   @override
@@ -30,12 +24,31 @@ class _TasksScreenState extends State<TasksScreen> {
   void initiarize(BuildContext context) {
     Provider.of<TaskData>(context).initializeData();
     Provider.of<UserData>(context).initializeData();
+    Provider.of<ColorData>(context).initializeData(context);
     databaseHelper.database;
+  }
+
+  bool isDark(BuildContext context) {
+    if (Provider.of<ColorData>(context).colorListCount > 0) {
+      // Provider.of<ColorData>(context).initializeData(context);
+      if (Provider.of<ColorData>(context).colorList[0].colorMode == 0) {
+        return false;
+      } else {
+        return true;
+      }
+    } else {
+      final colorMode = MediaQuery.of(context).platformBrightness;
+      if (colorMode == Brightness.light) {
+        return false;
+      } else {
+        return true;
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    bool _isDarkMode = Provider.of<TaskData>(context).isDarkMode;
+    bool _isDarkMode = isDark(context);
     initiarize(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -158,7 +171,7 @@ class _TasksScreenState extends State<TasksScreen> {
               title: Text('Color Mode'),
               value: _isDarkMode,
               onChanged: (bool value) {
-                Provider.of<TaskData>(context).toggleColorMode();
+                Provider.of<ColorData>(context).updateColor(value);
               },
             ),
             Divider(),

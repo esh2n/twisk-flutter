@@ -1,3 +1,4 @@
+import 'package:twisk/models/color.dart';
 import 'package:twisk/models/task.dart';
 import 'package:sqflite/sqflite.dart';
 import 'dart:async';
@@ -81,9 +82,25 @@ class DatabaseHelper {
       );
       print("=================[Created ColorSetting Table]=================");
       await txn.execute(
-        'CREATE TABLE $colorTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colColorMode INTEGER)',
+        'CREATE TABLE $colorTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colColorMode INTEGER, $colDate TEXT)',
       );
     });
+  }
+
+  Future<List<Map<String, dynamic>>> getColorData() async {
+    Database db = await this.database;
+    var result = await db.query(colorTable, orderBy: '$colId DESC');
+    return result;
+  }
+
+  Future<List<ColorSetting>> getColorList() async {
+    var colorMapList = await getColorData();
+    int count = colorMapList.length;
+    List<ColorSetting> colorList = List<ColorSetting>();
+    for (int i = 0; i < count; i++) {
+      colorList.add(ColorSetting.fromMapObject(colorMapList[i]));
+    }
+    return colorList;
   }
 
   Future<List<Map<String, dynamic>>> getUserData() async {
@@ -124,6 +141,13 @@ class DatabaseHelper {
     }
   }
 
+//! sasasa
+  Future<int> insertColorData(ColorSetting color) async {
+    Database db = await this.database;
+    var result = await db.insert(colorTable, color.toMap());
+    return result;
+  }
+
   Future<int> insertUserData(User user) async {
     Database db = await this.database;
     var result = await db.insert(userSettingTable, user.toMap());
@@ -160,6 +184,13 @@ class DatabaseHelper {
     }
   }
 
+  Future<int> updateColor(ColorSetting color) async {
+    var db = await this.database;
+    var result = await db.update(colorTable, color.toMap(),
+        where: '$colId = ?', whereArgs: [color.id]);
+    return result;
+  }
+
   Future<int> updateTask(Task task, int index) async {
     var db = await this.database;
     switch (index) {
@@ -194,6 +225,12 @@ class DatabaseHelper {
     var db = await this.database;
     var result = await db.update(taskTable, task.toMap(),
         where: '$colId = ?', whereArgs: [task.id]);
+    return result;
+  }
+
+  Future<int> deleteColorData() async {
+    var db = await this.database;
+    int result = await db.rawDelete('DELETE FROM $colorTable');
     return result;
   }
 

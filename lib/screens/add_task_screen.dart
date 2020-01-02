@@ -174,7 +174,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       result = await helper.insertTask(
           task, Provider.of<TaskData>(context).selectedTask);
     }
-
     if (result != 0) {
       // Success
     } else {
