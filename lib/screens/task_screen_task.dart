@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twisk/colors.dart';
 import 'package:twisk/models/task.dart';
+import 'package:twisk/models/user.dart';
 import 'package:twisk/util/database_helper.dart';
 import 'package:twisk/models/task_data.dart';
 import 'package:twisk/screens/add_task_screen.dart';
+import 'package:twisk/models/user_data.dart';
 
 class TaskScreenTask extends StatefulWidget {
   @override
@@ -18,26 +20,6 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
 
   @override
   Widget build(BuildContext context) {
-    List<Task> taskList = Provider.of<TaskData>(context).tasks;
-    List<Task> weeklyTaskList = Provider.of<TaskData>(context).weeklyTasks;
-    List<Task> monthlyTaskList = Provider.of<TaskData>(context).monthlyTasks;
-    List<Task> yearlyTaskList = Provider.of<TaskData>(context).yearlyTasks;
-    if (taskList == null) {
-      taskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView(0);
-    }
-    if (weeklyTaskList == null) {
-      weeklyTaskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView(1);
-    }
-    if (monthlyTaskList == null) {
-      monthlyTaskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView(2);
-    }
-    if (yearlyTaskList == null) {
-      yearlyTaskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView(3);
-    }
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,8 +57,8 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                         margin: EdgeInsets.only(right: 30),
                         child: RawMaterialButton(
                           onPressed: () {
-                            print("show drawer button tapped");
                             Scaffold.of(context).openDrawer();
+                            Provider.of<UserData>(context).updateUserList();
                           },
                           shape: new CircleBorder(),
                           elevation: 0.0,
@@ -164,17 +146,18 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                     fontWeight: FontWeight.bold,
                   )),
             ),
-            title: Text(getTaskName(index),
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: getListTextColor(),
-                )),
+            title: Text(
+              getTaskName(index),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: getListTextColor(),
+              ),
+            ),
             subtitle: Text(
               getTaskDescription(index),
               style: TextStyle(
                 color: Colors.grey,
               ),
-              // Provider.of<TaskData>(context).taskList[index].description
             ),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -185,7 +168,6 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                     color: Colors.red,
                   ),
                   onTap: () {
-                    print(Provider.of<TaskData>(context).selectedTask);
                     _delete(context, getCurrentTaskList(context, index),
                         Provider.of<TaskData>(context).selectedTask);
                   },
@@ -193,7 +175,6 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
               ],
             ),
             onLongPress: () {
-              debugPrint("ListTile Tapped");
               navigateToDetail(this.getCurrentTask(index), 'Edit Task');
             },
           ),
@@ -228,7 +209,6 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
         builder: (context) {
           return AddTaskScreen(name, task);
         });
-    print(result);
     if (result == true) {
       Provider.of<TaskData>(context)
           .updateListView(Provider.of<TaskData>(context).selectedTask);
@@ -404,19 +384,6 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
   // void _showSnackBar(BuildContext context, String message) {
   //   final snackBar = SnackBar(content: Text(message));
   //   Scaffold.of(context).showSnackBar(snackBar);
-  // }
-
-  // void navigateToDetail(Task task, String name) async {
-  //   bool result = await showModalBottomSheet(
-  //       context: context,
-  //       isScrollControlled: true,
-  //       builder: (context) {
-  //         return AddTaskScreen('ADD', Task('', '', ''));
-  //       });
-  //   print(result);
-  //   if (result == true) {
-  //     updateListView();
-  //   }
   // }
 
   // void updateListView() {

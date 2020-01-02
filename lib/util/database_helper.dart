@@ -53,7 +53,6 @@ class DatabaseHelper {
   }
 
   Future<Database> initializeDatabase() async {
-    // Get the directory path for both Android and iOS to store database.
     Directory directory = await getApplicationDocumentsDirectory();
     String path = p.join(directory.toString(), 'twisk.db');
     var tasksDatabase =
@@ -62,7 +61,7 @@ class DatabaseHelper {
   }
 
   void _createDb(Database db, int newVersion) async {
-    print("=================[CREATED DATABASE]=================");
+    print("=================[Created Tasks Tables]=================");
     await db.transaction((txn) async {
       await txn.execute(
         'CREATE TABLE $taskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
@@ -76,9 +75,11 @@ class DatabaseHelper {
       await txn.execute(
         'CREATE TABLE $yearlyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
       );
+      print("=================[Created UserSetting Table]=================");
       await txn.execute(
         'CREATE TABLE $userSettingTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colDisplayName TEXT, $colScreenName TEXT, $colPhotoURL TEXT, $colUserId TEXT, $colDate TEXT)',
       );
+      print("=================[Created ColorSetting Table]=================");
       await txn.execute(
         'CREATE TABLE $colorTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colColorMode INTEGER)',
       );
@@ -89,6 +90,16 @@ class DatabaseHelper {
     Database db = await this.database;
     var result = await db.query(userSettingTable, orderBy: '$colId DESC');
     return result;
+  }
+
+  Future<List<User>> getUserList() async {
+    var userMapList = await getUserData();
+    int count = userMapList.length;
+    List<User> userList = List<User>();
+    for (int i = 0; i < count; i++) {
+      userList.add(User.fromMapObject(userMapList[i]));
+    }
+    return userList;
   }
 
   Future<List<Map<String, dynamic>>> getTaskMapList(int index) async {
@@ -116,7 +127,6 @@ class DatabaseHelper {
   Future<int> insertUserData(User user) async {
     Database db = await this.database;
     var result = await db.insert(userSettingTable, user.toMap());
-    print("added user");
     return result;
   }
 
@@ -187,10 +197,9 @@ class DatabaseHelper {
     return result;
   }
 
-  Future<int> deleteUserData(int id) async {
+  Future<int> deleteUserData() async {
     var db = await this.database;
-    int result =
-        await db.rawDelete('DELETE FROM $userSettingTable WHERE $colId = $id');
+    int result = await db.rawDelete('DELETE FROM $userSettingTable');
     return result;
   }
 

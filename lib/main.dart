@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:twisk/models/user_data.dart';
 import 'screens/tasks_screen.dart';
 import 'package:twisk/models/task_data.dart';
 import 'colors.dart';
@@ -13,21 +14,25 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-    return ChangeNotifierProvider(
-        builder: (context) => TaskData(),
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: TasksScreen(),
-          theme: ThemeData(
-            brightness: Brightness.light,
-            fontFamily: 'AmericanTypewriter',
-            primaryColor: mainColor,
-          ),
-          darkTheme: ThemeData(
-            brightness: Brightness.dark,
-            fontFamily: 'AmericanTypewriter',
-            primaryColor: mainColorDark,
-          ),
-        ));
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => TaskData()),
+        ChangeNotifierProvider(create: (context) => UserData()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: TasksScreen(),
+        theme: ThemeData(
+          brightness: Brightness.light,
+          fontFamily: 'AmericanTypewriter',
+          primaryColor: mainColor,
+        ),
+        darkTheme: ThemeData(
+          brightness: Brightness.dark,
+          fontFamily: 'AmericanTypewriter',
+          primaryColor: mainColorDark,
+        ),
+      ),
+    );
   }
 }

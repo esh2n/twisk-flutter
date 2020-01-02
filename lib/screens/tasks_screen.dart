@@ -14,6 +14,7 @@ import 'package:twisk/util/twitterLogin.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:twisk/models/user.dart';
+import 'package:twisk/models/user_data.dart';
 import 'package:twisk/apikey.dart';
 import 'package:twitter_oauth/twitter_oauth.dart';
 
@@ -26,26 +27,16 @@ class _TasksScreenState extends State<TasksScreen> {
   DatabaseHelper databaseHelper = DatabaseHelper();
   int selectedIndex = 0;
 
+  void initiarize(BuildContext context) {
+    Provider.of<TaskData>(context).initializeData();
+    Provider.of<UserData>(context).initializeData();
+    databaseHelper.database;
+  }
+
   @override
   Widget build(BuildContext context) {
     bool _isDarkMode = Provider.of<TaskData>(context).isDarkMode;
-    // Provider.of<TaskData>(context).updateListView();
-    if (Provider.of<TaskData>(context).taskList == null) {
-      Provider.of<TaskData>(context).taskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView(0);
-    }
-    if (Provider.of<TaskData>(context).weeklyTaskList == null) {
-      Provider.of<TaskData>(context).weeklyTaskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView(1);
-    }
-    if (Provider.of<TaskData>(context).monthlyTaskList == null) {
-      Provider.of<TaskData>(context).monthlyTaskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView(2);
-    }
-    if (Provider.of<TaskData>(context).yearlyTaskList == null) {
-      Provider.of<TaskData>(context).yearlyTaskList = List<Task>();
-      Provider.of<TaskData>(context).updateListView(3);
-    }
+    initiarize(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -67,11 +58,8 @@ class _TasksScreenState extends State<TasksScreen> {
         selectedColor: getBottomColor(),
         notchedShape: CircularNotchedRectangle(),
         onTabSelected: (index) {
-          getUserProfile();
-
           setState(() {
             selectedIndex = index;
-            print(selectedIndex);
           });
         },
         items: [
@@ -84,30 +72,26 @@ class _TasksScreenState extends State<TasksScreen> {
       drawer: Drawer(
         elevation: 10,
         child: Column(
-          // padding: const EdgeInsets.only(top: 0),
           children: <Widget>[
             UserAccountsDrawerHeader(
               accountName: FutureBuilder<Widget>(
                 future: getUserName(),
-                builder:
-                    (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                builder: (BuildContext context, AsyncSnapshot snapshot) {
                   if (snapshot.hasData) {
                     return snapshot.data;
                   }
                   return Text("ログインしてください");
                 },
               ),
-              accountEmail: Text("sasa"),
-              // !TODO
-              // FutureBuilder<Widget>(
-              //     future: getScreenrName(),
-              //     builder:
-              //         (BuildContext context, AsyncSnapshot<Widget> snapshot) {
-              //       if (snapshot.hasData) {
-              //         return snapshot.data;
-              //       }
-              //       return Text("");
-              //     }),
+              accountEmail: FutureBuilder<Widget>(
+                  future: getScreenrName(),
+                  builder:
+                      (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+                    if (snapshot.hasData) {
+                      return snapshot.data;
+                    }
+                    return Text("");
+                  }),
               currentAccountPicture: CircleAvatar(
                 radius: 30,
                 backgroundColor: addButtonColor,
@@ -126,24 +110,14 @@ class _TasksScreenState extends State<TasksScreen> {
                         ),
                       );
                     }),
-                // getUserImage(),
-                // Icon(
-                //   Icons.account_circle,
-                //   size: 70,
-                //   color: addButtonColor,
-                // ),
               ),
-              // arrowColor: Colors.white,
             ),
             ListTile(
               title: Text(
                   'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                setState(() {
-                  Provider.of<TaskData>(context).selectedTask = 0;
-                });
-                print(Provider.of<TaskData>(context).selectedTask);
+                Provider.of<TaskData>(context).changeSelectedTask(0);
                 Navigator.pop(context, true);
               },
             ),
@@ -153,36 +127,25 @@ class _TasksScreenState extends State<TasksScreen> {
                   'Weekly Tasks  (${Provider.of<TaskData>(context).weeklyTaskCount})'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                setState(() {
-                  Provider.of<TaskData>(context).selectedTask = 1;
-                });
-                print(Provider.of<TaskData>(context).selectedTask);
+                Provider.of<TaskData>(context).changeSelectedTask(1);
                 Navigator.pop(context, true);
               },
             ),
             ListTile(
               title: Text(
-                  // 'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
                   'Monthly Tasks  (${Provider.of<TaskData>(context).monthlyTaskCount})'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                setState(() {
-                  Provider.of<TaskData>(context).selectedTask = 2;
-                });
-                print(Provider.of<TaskData>(context).selectedTask);
+                Provider.of<TaskData>(context).changeSelectedTask(2);
                 Navigator.pop(context, true);
               },
             ),
             ListTile(
               title: Text(
-                  // 'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
                   'Yearly Tasks  (${Provider.of<TaskData>(context).yearlyTaskCount})'),
               trailing: Icon(Icons.arrow_forward_ios),
               onTap: () {
-                setState(() {
-                  Provider.of<TaskData>(context).selectedTask = 3;
-                });
-                print(Provider.of<TaskData>(context).selectedTask);
+                Provider.of<TaskData>(context).changeSelectedTask(3);
                 Navigator.pop(context, true);
               },
             ),
@@ -217,7 +180,6 @@ class _TasksScreenState extends State<TasksScreen> {
 
   Widget _buildChild() {
     if (this.selectedIndex == 1) {
-      // return LoginScreen();
       return TwitterOauthPage();
     } else {
       return TaskScreenTask();
@@ -225,17 +187,17 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<Widget> getUserImage() async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    FirebaseUser user = await _auth.currentUser();
-    if (user != null) {
-      String userImageUrl = user.photoUrl;
-      return ClipOval(
-        child: Image.network(
-          userImageUrl,
-          height: 70,
-          fit: BoxFit.cover,
-        ),
-      );
+    int count = Provider.of<UserData>(context).userListCount;
+    if (count > 0) {
+      if (Provider.of<UserData>(context).userList[0].photoURL != null) {
+        return ClipOval(
+          child: Image.network(
+            Provider.of<UserData>(context).userList[0].photoURL,
+            height: 70,
+            fit: BoxFit.cover,
+          ),
+        );
+      }
     }
     return ClipOval(
       child: Icon(
@@ -247,18 +209,32 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<Widget> getUserName() async {
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    FirebaseUser user = await _auth.currentUser();
-    if (user != null) {
-      String userDisplayName = user.displayName;
-      return Text(userDisplayName);
+    int count = Provider.of<UserData>(context).userListCount;
+    if (count > 0) {
+      if (Provider.of<UserData>(context).userList[0].displayName != null) {
+        return Text(
+          Provider.of<UserData>(context).userList[0].displayName,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        );
+      }
+      return Text("ログインしてください");
     }
-    return Text("ログインしてください。");
+    return Text("ログインしてください");
   }
 
   Future<Widget> getScreenrName() async {
-    String userScreenName = "@" + screenName;
-    return Text(userScreenName);
+    int count = Provider.of<UserData>(context).userListCount;
+    if (count > 0) {
+      if (Provider.of<UserData>(context).userList[0].screenName != null) {
+        return Text(
+            "@" + Provider.of<UserData>(context).userList[0].screenName);
+      }
+      return Text("");
+    }
+    return Text("");
   }
 
   getFirstLetter(String title) {
@@ -304,15 +280,5 @@ class _TasksScreenState extends State<TasksScreen> {
     } else {
       return addButtonColor;
     }
-  }
-
-  void getUserProfile() async {
-    final sasa = await databaseHelper.getUserData();
-    if (sasa != null) {
-      print(sasa);
-    }
-    // final FirebaseAuth _auth = FirebaseAuth.instance;
-    // FirebaseUser user = await _auth.currentUser();
-    // print(user.metadata);
   }
 }

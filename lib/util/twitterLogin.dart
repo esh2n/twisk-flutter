@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 import 'package:twisk/models/user.dart';
 import 'package:twitter_oauth/twitter_oauth.dart';
 import 'package:webview_flutter/webview_flutter.dart';
@@ -12,6 +13,7 @@ import 'package:twisk/util/database_helper.dart';
 
 import 'package:twisk/apikey.dart';
 import 'package:intl/intl.dart';
+import 'package:twisk/models/user_data.dart';
 
 class TwitterOauthPage extends StatefulWidget {
   const TwitterOauthPage({Key key}) : super(key: key);
@@ -168,6 +170,17 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
 
   void _signOut() async {
     await FirebaseAuth.instance.signOut();
+    _delete();
+  }
+
+  void _delete() async {
+    DatabaseHelper helper = DatabaseHelper();
+    int result = await helper.deleteUserData();
+    if (result != 0) {
+      Provider.of<UserData>(context).updateUserList();
+    } else {
+      print("failed to delete user data.");
+    }
   }
 
   Color getAddButtonTextColor() {
@@ -283,9 +296,6 @@ class _TwitterWebViewState extends State<TwitterWebView> {
   Future<String> twitterSignin(Map<String, String> token) async {
     final Map<String, String> oauthToken =
         await _twitterOauth.getAccessToken(token);
-    print(oauthToken);
-    screenName = oauthToken["screen_name"];
-    print(screenName);
     final AuthCredential credential = TwitterAuthProvider.getCredential(
       authToken: oauthToken['oauth_token'],
       authTokenSecret: oauthToken['oauth_token_secret'],
@@ -300,14 +310,17 @@ class _TwitterWebViewState extends State<TwitterWebView> {
   void _save(oauthToken) async {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     FirebaseUser firebaseUser = await _auth.currentUser();
-
-    User userData;
-    userData.displayName = firebaseUser.displayName;
-    userData.screenName = oauthToken["screen_name"];
-    userData.photoURL = firebaseUser.photoUrl;
-    userData.userId = oauthToken["user_id"];
-    userData.date = DateFormat.yMMMd().format(DateTime.now());
+    final displayName = firebaseUser.displayName;
+    final screenName = oauthToken["screen_name"];
+    final photoURL = firebaseUser.photoUrl;
+    final userId = oauthToken["user_id"];
+    final date = DateFormat.yMMMd().format(DateTime.now());
+    User userData = User(displayName, screenName, photoURL, userId, date);
     DatabaseHelper helper = DatabaseHelper();
-    await helper.insertUserData(userData);
+    print("called insert method");
+    await helper.insertUserData(userData).then((value) {
+      print("added user(userId: ${value})");
+    });
+    Provider.of<UserData>(context).updateUserList();
   }
 }

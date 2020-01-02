@@ -8,17 +8,16 @@ import 'dart:async';
 
 class TaskData extends ChangeNotifier {
   DatabaseHelper databaseHelper = DatabaseHelper();
-  List<Task> taskList;
-  List<Task> weeklyTaskList;
-  List<Task> monthlyTaskList;
-  List<Task> yearlyTaskList;
+  List<Task> taskList = List<Task>();
+  List<Task> weeklyTaskList = List<Task>();
+  List<Task> monthlyTaskList = List<Task>();
+  List<Task> yearlyTaskList = List<Task>();
   int selectedTask = 0;
 
   bool isDarkMode = false;
 
   void toggleColorMode() {
     isDarkMode = !isDarkMode;
-    print(isDarkMode);
     notifyListeners();
   }
 
@@ -69,30 +68,6 @@ class TaskData extends ChangeNotifier {
     return yearlyTaskList.length;
   }
 
-  // void updateListView(int index) {
-  //   final Future<Database> dbFuture = databaseHelper.initializeDatabase();
-  //   dbFuture.then((database) {
-  //     for (var i = 0; i < 4; i++) {
-  //       Future<List<Task>> taskListFuture = databaseHelper.getTaskList(i);
-  //       taskListFuture.then((taskList) {
-  //         if (i == 0) {
-  //           this.taskList = taskList;
-  //         }
-  //         if (i == 1) {
-  //           this.weeklyTaskList = taskList;
-  //         }
-  //         if (i == 2) {
-  //           this.monthlyTaskList = taskList;
-  //         }
-  //         if (i == 3) {
-  //           this.yearlyTaskList = taskList;
-  //         }
-  //       });
-  //       notifyListeners();
-  //     }
-  //   });
-  // }
-
   void updateListView(int index) {
     final Future<Database> dbFuture = databaseHelper.initializeDatabase();
     dbFuture.then((database) {
@@ -116,10 +91,30 @@ class TaskData extends ChangeNotifier {
     notifyListeners();
   }
 
+  void changeSelectedTask(int index) {
+    this.selectedTask = index;
+    notifyListeners();
+  }
+
   void delete(BuildContext context, Task task, int index) async {
     int result = await databaseHelper.deleteTask(task.id, index);
     if (result != 0) {
       updateListView(index);
+    }
+  }
+
+  void initializeData() {
+    if (this.taskList == null) {
+      this.updateListView(0);
+    }
+    if (this.weeklyTaskList == null) {
+      this.updateListView(1);
+    }
+    if (this.monthlyTaskList == null) {
+      this.updateListView(2);
+    }
+    if (this.yearlyTaskList == null) {
+      this.updateListView(3);
     }
   }
 }

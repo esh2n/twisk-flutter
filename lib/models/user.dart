@@ -29,16 +29,6 @@ void getTwitterRequest() async {
   );
 // Wait for the future to finish
   var res = await twitterRequest;
-
-// Print off the response
-  // print(res.statusCode);
-  // print(res.body);
-  // print(res.screen_name);
-}
-
-String sample() {
-  print("sasa");
-  return 'sasa';
 }
 // Future twitterRequest = _twitterOauth.getTwitterRequest(
 //   // Http Method
@@ -57,10 +47,6 @@ String sample() {
 
 // // Wait for the future to finish
 // var res = await twitterRequest;
-
-// // Print off the response
-// print(res.statusCode);
-// print(res.body);
 // }
 class User {
   int _id;
@@ -83,15 +69,11 @@ class User {
   String get date => _date;
 
   set displayName(String value) {
-    if (value.length <= 255) {
-      this._displayName = value;
-    }
+    this._displayName = value;
   }
 
   set screenName(String value) {
-    if (value.length <= 255) {
-      this._screenName = value;
-    }
+    this._screenName = value;
   }
 
   set photoURL(String value) {

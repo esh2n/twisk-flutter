@@ -66,7 +66,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 controller: titleController,
                 style: textStyle,
                 onChanged: (value) {
-                  debugPrint('Something changed in Title Text Field');
                   updateTitle();
                 },
                 decoration: InputDecoration(
@@ -90,7 +89,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 controller: descriptionController,
                 style: textStyle,
                 onChanged: (value) {
-                  debugPrint('Something changed in Description Text Field');
                   updateDescription();
                 },
                 decoration: InputDecoration(
@@ -161,7 +159,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     task.name = titleController.text;
   }
 
-  // Update the description of todo object
   void updateDescription() {
     task.description = descriptionController.text;
   }
