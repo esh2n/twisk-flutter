@@ -8,7 +8,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:twisk/screens/tasks_screen.dart';
 import 'package:twisk/colors.dart';
 import 'dart:async';
-import 'package:twisk/parts/fab_bottom_app_bar.dart';
 import 'package:twisk/util/database_helper.dart';
 
 import 'package:twisk/apikey.dart';
@@ -24,7 +23,6 @@ class TwitterOauthPage extends StatefulWidget {
 
 class _TwitterOauthPageState extends State<TwitterOauthPage> {
   TwitterOauth _twitterOauth;
-
   @override
   void initState() {
     super.initState();
@@ -37,8 +35,9 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool _isDarkMode = isDark(context);
     return Scaffold(
-      backgroundColor: getMainColor(),
+      backgroundColor: getMainColor(_isDarkMode),
       body: Container(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +54,7 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
                   Text(
                     'Login to Twitter',
                     style: TextStyle(
-                      color: getTextColor(),
+                      color: getTextColor(_isDarkMode),
                       fontSize: 50.0,
                       fontWeight: FontWeight.w700,
                     ),
@@ -67,7 +66,7 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20.0),
                 decoration: BoxDecoration(
-                  color: getListBackGroundColor(),
+                  color: getListBackGroundColor(_isDarkMode),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20.0),
                     topRight: Radius.circular(20.0),
@@ -122,7 +121,7 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
           child: Text(
             'Logout With Twitter.',
             style: TextStyle(
-              color: getAddButtonTextColor(),
+              color: Colors.white,
             ),
           ),
           color: Colors.redAccent,
@@ -163,7 +162,7 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
 
   void getUserProfile() {
     FirebaseUser user;
-    print("=============================================================");
+    print("======================[getUserProfile]===========================");
     print(user);
     // if (user) {}
   }
@@ -180,61 +179,6 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
       Provider.of<UserData>(context).updateUserList();
     } else {
       print("failed to delete user data.");
-    }
-  }
-
-  Color getAddButtonTextColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return Colors.white;
-      // return listBackGroundColor;
-    } else {
-      return Colors.white;
-    }
-  }
-
-  Color getAddButtonColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return textColorDark;
-    } else {
-      return addButtonColor;
-    }
-  }
-
-  Color getMainColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return mainColorDark;
-    } else {
-      return mainColor;
-    }
-  }
-
-  Color getTextColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return textColorDark;
-    } else {
-      return textColor;
-    }
-  }
-
-  Color getListBackGroundColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return listBackGroundColor;
-    } else {
-      return Colors.white;
-    }
-  }
-
-  Color getFocusedBorderColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return Colors.white;
-    } else {
-      return mainColor;
     }
   }
 }

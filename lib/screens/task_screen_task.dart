@@ -20,6 +20,7 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
 
   @override
   Widget build(BuildContext context) {
+    bool _isDarkMode = isDark(context);
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,9 +46,9 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                           child: Icon(
                             Icons.dehaze,
                             size: 30.0,
-                            color: getTextColor(),
+                            color: getTextColor(_isDarkMode),
                           ),
-                          backgroundColor: getButtonColor(),
+                          backgroundColor: getTopButtonColor(_isDarkMode),
                           radius: 30.0,
                         ),
                       ),
@@ -73,7 +74,7 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                 Text(
                   'Twisk',
                   style: TextStyle(
-                    color: getTextColor(),
+                    color: getTextColor(_isDarkMode),
                     fontSize: 50.0,
                     fontWeight: FontWeight.w700,
                   ),
@@ -84,14 +85,14 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
                     Text(
                       '${getTaskCount()} Tasks',
                       style: TextStyle(
-                        color: getTextColor(),
+                        color: getTextColor(_isDarkMode),
                         fontSize: 18.0,
                       ),
                     ),
                     Text(
                       '- ${getTaskType()}',
                       style: TextStyle(
-                        color: getTextColor(),
+                        color: getTextColor(_isDarkMode),
                         fontSize: 18.0,
                       ),
                     ),
@@ -104,7 +105,7 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
             child: Container(
               padding: EdgeInsets.symmetric(horizontal: 20.0),
               decoration: BoxDecoration(
-                  color: getListBackGroundColor(),
+                  color: getListBackGroundColor(_isDarkMode),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20.0),
                     topRight: Radius.circular(20.0),
@@ -130,6 +131,7 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
     return ListView.builder(
       itemCount: getTaskCount(),
       itemBuilder: (BuildContext context, int index) {
+        bool _isDarkMode = isDark(context);
         return Card(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
@@ -150,7 +152,7 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
               getTaskName(index),
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: getListTextColor(),
+                color: getListTextColor(_isDarkMode),
               ),
             ),
             subtitle: Text(
@@ -238,42 +240,6 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
         break;
       default:
         return Colors.amber;
-    }
-  }
-
-  Color getTextColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return textColorDark;
-    } else {
-      return textColor;
-    }
-  }
-
-  Color getListTextColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return listBackGroundColor;
-    } else {
-      return listBackGroundColor;
-    }
-  }
-
-  Color getButtonColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return addButtonColorDark;
-    } else {
-      return Colors.white;
-    }
-  }
-
-  Color getListBackGroundColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return listBackGroundColor;
-    } else {
-      return Colors.white;
     }
   }
 

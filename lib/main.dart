@@ -6,7 +6,6 @@ import 'package:twisk/models/user_data.dart';
 import 'screens/tasks_screen.dart';
 import 'package:twisk/models/task_data.dart';
 import 'colors.dart';
-
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
 void main() => runApp(MyApp());

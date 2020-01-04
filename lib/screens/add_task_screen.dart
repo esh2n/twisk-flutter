@@ -30,20 +30,18 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   @override
   Widget build(BuildContext context) {
     TextStyle textStyle = Theme.of(context).textTheme.title;
-
     titleController.text = task.name;
     descriptionController.text = task.description;
-
     double containerHeight = MediaQuery.of(context).size.height;
-
+    bool _isDarkMode = isDark(context);
     return Container(
       height: containerHeight * .85,
-      color: getAddScreenColor(),
+      color: getAddScreenColor(_isDarkMode),
       child: Container(
         padding:
             EdgeInsets.only(top: 20.0, left: 30.0, right: 30.0, bottom: 20.0),
         decoration: BoxDecoration(
-            color: getListBackGroundColor(),
+            color: getListBackGroundColor(_isDarkMode),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(20.0),
               topRight: Radius.circular(20.0),
@@ -56,7 +54,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 30.0,
-                color: getAddButtonColor(),
+                color: getAddButtonColor(_isDarkMode),
               ),
             ),
             Padding(
@@ -64,20 +62,32 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               child: TextField(
                 autofocus: true,
                 controller: titleController,
-                style: textStyle,
+                style: TextStyle(
+                  color: getTextColor(_isDarkMode),
+                ),
                 onChanged: (value) {
                   updateTitle();
                 },
                 decoration: InputDecoration(
                   labelText: 'Title',
-                  labelStyle: textStyle,
+                  labelStyle: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: getFocusedBorderColor(_isDarkMode),
+                      width: 0.5,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide: BorderSide(
-                      color: getFocusedBorderColor(),
+                      color: getFocusedBorderColor(_isDarkMode),
+                      width: 1.5,
                     ),
                   ),
                 ),
@@ -87,20 +97,32 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
               child: TextField(
                 controller: descriptionController,
-                style: textStyle,
+                style: TextStyle(
+                  color: getTextColor(_isDarkMode),
+                ),
                 onChanged: (value) {
                   updateDescription();
                 },
                 decoration: InputDecoration(
                   labelText: 'Description',
-                  labelStyle: textStyle,
+                  labelStyle: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                    borderSide: BorderSide(
+                      color: getFocusedBorderColor(_isDarkMode),
+                      width: 0.5,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(30.0),
                     borderSide: BorderSide(
-                      color: getFocusedBorderColor(),
+                      color: getFocusedBorderColor(_isDarkMode),
+                      width: 1.5,
                     ),
                   ),
                 ),
@@ -113,10 +135,10 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     child: Text(
                       'Save',
                       style: TextStyle(
-                        color: getAddButtonTextColor(),
+                        color: getAddButtonTextColor(_isDarkMode),
                       ),
                     ),
-                    color: getAddButtonColor(),
+                    color: getAddButtonColor(_isDarkMode),
                     onPressed: () {
                       _save();
                     },
@@ -135,13 +157,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   }
 
   Widget getDeleteButton() {
+    bool _isDarkMode = isDark(context);
     if (this.appBarTitle == 'Edit Task') {
       return Expanded(
         child: FlatButton(
           child: Text(
             'Delete',
             style: TextStyle(
-              color: getAddButtonTextColor(),
+              color: getAddButtonTextColor(_isDarkMode),
             ),
           ),
           color: Colors.redAccent,
@@ -191,50 +214,5 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         task.id, Provider.of<TaskData>(context).selectedTask);
     if (result != 0) {
     } else {}
-  }
-
-  Color getListBackGroundColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return listBackGroundColor;
-    } else {
-      return Colors.white;
-    }
-  }
-
-  Color getAddScreenColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return addScreenColorDark;
-    } else {
-      return addScreenColor;
-    }
-  }
-
-  Color getAddButtonTextColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return listBackGroundColor;
-    } else {
-      return Colors.white;
-    }
-  }
-
-  Color getAddButtonColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return textColorDark;
-    } else {
-      return addButtonColor;
-    }
-  }
-
-  Color getFocusedBorderColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return Colors.white;
-    } else {
-      return mainColor;
-    }
   }
 }

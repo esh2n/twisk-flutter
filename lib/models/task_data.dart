@@ -8,13 +8,11 @@ import 'dart:async';
 
 class TaskData extends ChangeNotifier {
   DatabaseHelper databaseHelper = DatabaseHelper();
-  List<Task> taskList = List<Task>();
-  List<Task> weeklyTaskList = List<Task>();
-  List<Task> monthlyTaskList = List<Task>();
-  List<Task> yearlyTaskList = List<Task>();
+  List<Task> taskList;
+  List<Task> weeklyTaskList;
+  List<Task> monthlyTaskList;
+  List<Task> yearlyTaskList;
   int selectedTask = 0;
-
-  // bool isDarkMode = false;
 
   // void toggleColorMode() {
   //   isDarkMode = !isDarkMode;
@@ -53,19 +51,31 @@ class TaskData extends ChangeNotifier {
   }
 
   int get taskCount {
-    return taskList.length;
+    if (this.taskList != null) {
+      return taskList.length;
+    }
+    return 0;
   }
 
   int get weeklyTaskCount {
-    return weeklyTaskList.length;
+    if (this.weeklyTaskList != null) {
+      return weeklyTaskList.length;
+    }
+    return 0;
   }
 
   int get monthlyTaskCount {
-    return monthlyTaskList.length;
+    if (this.monthlyTaskList != null) {
+      return monthlyTaskList.length;
+    }
+    return 0;
   }
 
   int get yearlyTaskCount {
-    return yearlyTaskList.length;
+    if (this.yearlyTaskList != null) {
+      return yearlyTaskList.length;
+    }
+    return 0;
   }
 
   void updateListView(int index) {
@@ -75,20 +85,22 @@ class TaskData extends ChangeNotifier {
       taskListFuture.then((taskList) {
         if (index == 0) {
           this.taskList = taskList;
+          notifyListeners();
         }
         if (index == 1) {
           this.weeklyTaskList = taskList;
+          notifyListeners();
         }
         if (index == 2) {
           this.monthlyTaskList = taskList;
+          notifyListeners();
         }
         if (index == 3) {
           this.yearlyTaskList = taskList;
+          notifyListeners();
         }
       });
-      notifyListeners();
     });
-    notifyListeners();
   }
 
   void changeSelectedTask(int index) {
@@ -104,6 +116,7 @@ class TaskData extends ChangeNotifier {
   }
 
   void initializeData() {
+    // print(this.taskList);
     if (this.taskList == null) {
       this.updateListView(0);
     }

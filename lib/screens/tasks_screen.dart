@@ -10,7 +10,6 @@ import 'package:twisk/models/task_data.dart';
 import 'package:twisk/util/twitterLogin.dart';
 import 'package:twisk/models/user_data.dart';
 import 'package:twisk/models/color_data.dart';
-import 'package:twisk/models/color.dart';
 
 class TasksScreen extends StatefulWidget {
   @override
@@ -28,34 +27,16 @@ class _TasksScreenState extends State<TasksScreen> {
     databaseHelper.database;
   }
 
-  bool isDark(BuildContext context) {
-    if (Provider.of<ColorData>(context).colorListCount > 0) {
-      // Provider.of<ColorData>(context).initializeData(context);
-      if (Provider.of<ColorData>(context).colorList[0].colorMode == 0) {
-        return false;
-      } else {
-        return true;
-      }
-    } else {
-      final colorMode = MediaQuery.of(context).platformBrightness;
-      if (colorMode == Brightness.light) {
-        return false;
-      } else {
-        return true;
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    bool _isDarkMode = isDark(context);
     initiarize(context);
+    bool _isDarkMode = isDark(context);
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           navigateToDetail(Task('', '', ''), 'Add Task');
         },
-        backgroundColor: getButtonColor(),
+        backgroundColor: getButtonColor(_isDarkMode),
         tooltip: 'Add Task',
         elevation: 2.0,
         child: Icon(
@@ -68,7 +49,8 @@ class _TasksScreenState extends State<TasksScreen> {
       bottomNavigationBar: FABBottomAppBar(
         centerItemText: 'Add',
         color: Colors.grey,
-        selectedColor: getBottomColor(),
+        backgroundColor: getListBackGroundColor(_isDarkMode),
+        selectedColor: getBottomColor(_isDarkMode),
         notchedShape: CircularNotchedRectangle(),
         onTabSelected: (index) {
           setState(() {
@@ -80,112 +62,171 @@ class _TasksScreenState extends State<TasksScreen> {
           FABBottomAppBarItem(iconData: Icons.account_circle, text: 'Login'),
         ],
       ),
-      backgroundColor: getMainColor(),
+      backgroundColor: getMainColor(_isDarkMode),
       body: _buildChild(),
       drawer: Drawer(
         elevation: 10,
-        child: Column(
-          children: <Widget>[
-            UserAccountsDrawerHeader(
-              accountName: FutureBuilder<Widget>(
-                future: getUserName(),
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.hasData) {
-                    return snapshot.data;
-                  }
-                  return Text("ログインしてください");
-                },
-              ),
-              accountEmail: FutureBuilder<Widget>(
-                  future: getScreenrName(),
-                  builder:
-                      (BuildContext context, AsyncSnapshot<Widget> snapshot) {
+        child: Container(
+          decoration: BoxDecoration(
+            color: getListBackGroundColor(_isDarkMode),
+          ),
+          child: Column(
+            children: <Widget>[
+              UserAccountsDrawerHeader(
+                decoration: BoxDecoration(
+                  color: getMainColor(_isDarkMode),
+                ),
+                accountName: FutureBuilder<Widget>(
+                  future: getUserName(),
+                  builder: (BuildContext context, AsyncSnapshot snapshot) {
                     if (snapshot.hasData) {
                       return snapshot.data;
                     }
-                    return Text("");
-                  }),
-              currentAccountPicture: CircleAvatar(
-                radius: 30,
-                backgroundColor: addButtonColor,
-                child: FutureBuilder<Widget>(
-                    future: getUserImage(),
+                    return Text(
+                      "ログインしてください",
+                      style: TextStyle(
+                        color: getTextColor(_isDarkMode),
+                      ),
+                    );
+                  },
+                ),
+                accountEmail: FutureBuilder<Widget>(
+                    future: getScreenrName(),
                     builder:
                         (BuildContext context, AsyncSnapshot<Widget> snapshot) {
                       if (snapshot.hasData) {
                         return snapshot.data;
                       }
-                      return ClipOval(
-                        child: Icon(
-                          Icons.account_circle,
-                          size: 70,
-                          color: Colors.white,
-                        ),
-                      );
+                      return Text("");
                     }),
+                currentAccountPicture: CircleAvatar(
+                  radius: 30,
+                  backgroundColor: getMainColor(_isDarkMode),
+                  child: FutureBuilder<Widget>(
+                      future: getUserImage(),
+                      builder: (BuildContext context,
+                          AsyncSnapshot<Widget> snapshot) {
+                        if (snapshot.hasData) {
+                          return snapshot.data;
+                        }
+                        return ClipOval(
+                          child: Icon(
+                            Icons.account_circle,
+                            size: 70,
+                            color: Colors.white,
+                          ),
+                        );
+                      }),
+                ),
               ),
-            ),
-            ListTile(
-              title: Text(
-                  'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Provider.of<TaskData>(context).changeSelectedTask(0);
-                Navigator.pop(context, true);
-              },
-            ),
-            ListTile(
-              title: Text(
-                  // 'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})'),
-                  'Weekly Tasks  (${Provider.of<TaskData>(context).weeklyTaskCount})'),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Provider.of<TaskData>(context).changeSelectedTask(1);
-                Navigator.pop(context, true);
-              },
-            ),
-            ListTile(
-              title: Text(
-                  'Monthly Tasks  (${Provider.of<TaskData>(context).monthlyTaskCount})'),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Provider.of<TaskData>(context).changeSelectedTask(2);
-                Navigator.pop(context, true);
-              },
-            ),
-            ListTile(
-              title: Text(
-                  'Yearly Tasks  (${Provider.of<TaskData>(context).yearlyTaskCount})'),
-              trailing: Icon(Icons.arrow_forward_ios),
-              onTap: () {
-                Provider.of<TaskData>(context).changeSelectedTask(3);
-                Navigator.pop(context, true);
-              },
-            ),
-            Divider(),
-            Expanded(
-              child: Container(),
-            ),
-            Divider(),
-            SwitchListTile(
-              title: Text('Color Mode'),
-              value: _isDarkMode,
-              onChanged: (bool value) {
-                Provider.of<ColorData>(context).updateColor(value);
-              },
-            ),
-            Divider(),
-            ListTile(
-              title: Text('Close'),
-              trailing: Icon(Icons.close),
-              onTap: () {
-                Navigator.pop(context, true);
-              },
-            ),
-            Container(
-              height: 30.0,
-            ),
-          ],
+              ListTile(
+                title: Text(
+                  'Daily Tasks  (${Provider.of<TaskData>(context).taskCount})',
+                  style: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: getTextColor(_isDarkMode),
+                ),
+                onTap: () {
+                  Provider.of<TaskData>(context).changeSelectedTask(0);
+                  Navigator.pop(context, true);
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Weekly Tasks  (${Provider.of<TaskData>(context).weeklyTaskCount})',
+                  style: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: getTextColor(_isDarkMode),
+                ),
+                onTap: () {
+                  Provider.of<TaskData>(context).changeSelectedTask(1);
+                  Navigator.pop(context, true);
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Monthly Tasks  (${Provider.of<TaskData>(context).monthlyTaskCount})',
+                  style: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: getTextColor(_isDarkMode),
+                ),
+                onTap: () {
+                  Provider.of<TaskData>(context).changeSelectedTask(2);
+                  Navigator.pop(context, true);
+                },
+              ),
+              ListTile(
+                title: Text(
+                  'Yearly Tasks  (${Provider.of<TaskData>(context).yearlyTaskCount})',
+                  style: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.arrow_forward_ios,
+                  color: getTextColor(_isDarkMode),
+                ),
+                onTap: () {
+                  Provider.of<TaskData>(context).changeSelectedTask(3);
+                  Navigator.pop(context, true);
+                },
+              ),
+              Divider(
+                color: getDividerColor(_isDarkMode),
+              ),
+              Expanded(
+                child: Container(),
+              ),
+              Divider(
+                color: getDividerColor(_isDarkMode),
+              ),
+              SwitchListTile(
+                title: Text(
+                  'Color Mode',
+                  style: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
+                ),
+                value: _isDarkMode,
+                onChanged: (bool value) {
+                  Provider.of<ColorData>(context).updateColor(value);
+                },
+              ),
+              Divider(
+                color: getDividerColor(_isDarkMode),
+              ),
+              ListTile(
+                title: Text(
+                  'Close',
+                  style: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
+                ),
+                trailing: Icon(
+                  Icons.close,
+                  color: getTextColor(_isDarkMode),
+                ),
+                onTap: () {
+                  Navigator.pop(context, true);
+                },
+              ),
+              Container(
+                height: 30.0,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -222,28 +263,44 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Future<Widget> getUserName() async {
+    final bool _isDarkMode = isDark(context);
     int count = Provider.of<UserData>(context).userListCount;
     if (count > 0) {
       if (Provider.of<UserData>(context).userList[0].displayName != null) {
         return Text(
           Provider.of<UserData>(context).userList[0].displayName,
           style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-          ),
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: getTextColor(_isDarkMode)),
         );
       }
-      return Text("ログインしてください");
+      return Text(
+        "ログインしてください",
+        style: TextStyle(
+          color: getTextColor(_isDarkMode),
+        ),
+      );
     }
-    return Text("ログインしてください");
+    return Text(
+      "ログインしてください",
+      style: TextStyle(
+        color: getTextColor(_isDarkMode),
+      ),
+    );
   }
 
   Future<Widget> getScreenrName() async {
+    final bool _isDarkMode = isDark(context);
     int count = Provider.of<UserData>(context).userListCount;
     if (count > 0) {
       if (Provider.of<UserData>(context).userList[0].screenName != null) {
         return Text(
-            "@" + Provider.of<UserData>(context).userList[0].screenName);
+          "@" + Provider.of<UserData>(context).userList[0].screenName,
+          style: TextStyle(
+            color: getTextColor(_isDarkMode),
+          ),
+        );
       }
       return Text("");
     }
@@ -265,33 +322,6 @@ class _TasksScreenState extends State<TasksScreen> {
     if (result == true) {
       Provider.of<TaskData>(context)
           .updateListView(Provider.of<TaskData>(context).selectedTask);
-    }
-  }
-
-  Color getMainColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return mainColorDark;
-    } else {
-      return mainColor;
-    }
-  }
-
-  Color getButtonColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return addButtonColorDark;
-    } else {
-      return addButtonColor;
-    }
-  }
-
-  Color getBottomColor() {
-    var colorMode = MediaQuery.of(context).platformBrightness;
-    if (colorMode == Brightness.dark) {
-      return bottomBarColor;
-    } else {
-      return addButtonColor;
     }
   }
 }

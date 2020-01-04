@@ -11,14 +11,18 @@ import 'dart:async';
 
 class UserData extends ChangeNotifier {
   DatabaseHelper databaseHelper = DatabaseHelper();
-  List<User> userList = List<User>();
+  // List<User> userList = List<User>();
+  List<User> userList;
 
   UnmodifiableListView<User> get users {
     return UnmodifiableListView(userList);
   }
 
   int get userListCount {
-    return userList.length;
+    if (this.userList != null) {
+      return userList.length;
+    }
+    return 0;
   }
 
   void updateUserList() {
@@ -27,10 +31,9 @@ class UserData extends ChangeNotifier {
       Future<List<User>> userListFuture = databaseHelper.getUserList();
       await userListFuture.then((userList) {
         this.userList = userList;
+        notifyListeners();
       });
-      notifyListeners();
     });
-    notifyListeners();
   }
 
   void delete(BuildContext context, User user) async {

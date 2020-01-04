@@ -1,4 +1,3 @@
-import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'dart:collection';
 import 'package:sqflite/sqflite.dart';
@@ -9,14 +8,17 @@ import 'package:intl/intl.dart';
 
 class ColorData extends ChangeNotifier {
   DatabaseHelper databaseHelper = DatabaseHelper();
-  List<ColorSetting> colorList = List<ColorSetting>();
+  List<ColorSetting> colorList;
 
   UnmodifiableListView<ColorSetting> get colors {
     return UnmodifiableListView(colorList);
   }
 
   int get colorListCount {
-    return colorList.length;
+    if (this.colorList != null) {
+      return colorList.length;
+    }
+    return 0;
   }
 
   void updateColorList() {
@@ -26,10 +28,9 @@ class ColorData extends ChangeNotifier {
           databaseHelper.getColorList();
       await colorListFuture.then((colorList) {
         this.colorList = colorList;
+        notifyListeners();
       });
-      notifyListeners();
     });
-    notifyListeners();
   }
 
   void delete(BuildContext context, ColorSetting color) async {
@@ -54,29 +55,10 @@ class ColorData extends ChangeNotifier {
   }
 
   void initializeData(BuildContext context) async {
-    print(
-        "dasjbsodosiyvdoipvjosdbvjsdgusblvsdjhchsj============================================");
-
-    print(this.colorListCount);
-
-    print(
-        "dasjbsodosiyvdoipvjosdbvjsdgusblvsdjhchsj============================================");
-    if (this.colorListCount == 0) {
-      print(this.colorListCount);
-      final colorMode = MediaQuery.of(context).platformBrightness;
-      final date = DateFormat.yMMMd().format(DateTime.now());
-      DatabaseHelper helper = DatabaseHelper();
-      if (colorMode == Brightness.light) {
-        final ColorSetting color = ColorSetting(0, date);
-        await helper.insertColorData(color);
-      } else {
-        final ColorSetting color = ColorSetting(1, date);
-        await helper.insertColorData(color);
-      }
+    if (this.colorList == null) {
       this.updateColorList();
     } else if (this.colorListCount > 1) {
-      final colorMode = MediaQuery.of(context).platformBrightness;
-      if (colorMode == Brightness.light) {
+      if (this.colorList[0].colorMode == 0) {
         updateColor(false);
       } else {
         updateColor(true);
