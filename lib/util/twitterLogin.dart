@@ -127,13 +127,10 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
           color: Colors.redAccent,
           onPressed: () async {
             _signOut();
-            Navigator.of(context).pushReplacement<Widget, Widget>(
-              MaterialPageRoute<Widget>(
-                builder: (BuildContext context) {
-                  return (TasksScreen());
-                },
-              ),
-            );
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => new TasksScreen()),
+                (_) => false);
           },
         ),
       );
@@ -158,13 +155,6 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
         ),
       );
     }
-  }
-
-  void getUserProfile() {
-    FirebaseUser user;
-    print("======================[getUserProfile]===========================");
-    print(user);
-    // if (user) {}
   }
 
   void _signOut() async {
@@ -214,19 +204,28 @@ class _TwitterWebViewState extends State<TwitterWebView> {
           if (request.url.contains('handler')) {
             final String query = request.url.split('?').last;
             if (query.contains('denied') || query.contains('error')) {
+              Navigator.of(context).pushReplacement<Widget, Widget>(
+                MaterialPageRoute<Widget>(
+                  builder: (BuildContext context) {
+                    return (TasksScreen());
+                  },
+                ),
+              );
               print("failed");
             } else {
               final Map<String, String> res = Uri.splitQueryString(query);
-              twitterSignin(res).then((String uid) {
-                Navigator.of(context).pushReplacement<Widget, Widget>(
-                  MaterialPageRoute<Widget>(
-                    builder: (BuildContext context) {
-                      return (TasksScreen());
-                    },
-                  ),
-                );
-                // Navigator.pop(context);
-              });
+              twitterSignin(res).then(
+                (String uid) {
+                  Navigator.of(context).pushReplacement<Widget, Widget>(
+                    MaterialPageRoute<Widget>(
+                      builder: (BuildContext context) {
+                        return (TasksScreen());
+                      },
+                    ),
+                  );
+                  // Navigator.pop(context);
+                },
+              );
             }
           } else {
             print("failed but not denied");

@@ -218,8 +218,10 @@ class _TaskScreenTaskState extends State<TaskScreenTask> {
   }
 
   getFirstLetter(String title) {
-    if (title.length < 2) {
+    if (title.length == 1) {
       return title.substring(0, 1);
+    } else if (title.length == 0) {
+      return '';
     }
     return title.substring(0, 2);
   }

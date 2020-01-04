@@ -62,7 +62,7 @@ class DatabaseHelper {
   }
 
   void _createDb(Database db, int newVersion) async {
-    print("=================[Created Tasks Tables]=================");
+    print("[Created Tasks Tables]");
     await db.transaction((txn) async {
       await txn.execute(
         'CREATE TABLE $taskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
@@ -76,11 +76,11 @@ class DatabaseHelper {
       await txn.execute(
         'CREATE TABLE $yearlyTaskTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colName TEXT, $colDescription TEXT, $colDate TEXT)',
       );
-      print("=================[Created UserSetting Table]=================");
+      print("[Created UserSetting Table]");
       await txn.execute(
         'CREATE TABLE $userSettingTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colDisplayName TEXT, $colScreenName TEXT, $colPhotoURL TEXT, $colUserId TEXT, $colDate TEXT)',
       );
-      print("=================[Created ColorSetting Table]=================");
+      print("[Created ColorSetting Table]");
       await txn.execute(
         'CREATE TABLE $colorTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colColorMode INTEGER, $colDate TEXT)',
       );
@@ -141,7 +141,6 @@ class DatabaseHelper {
     }
   }
 
-//! sasasa
   Future<int> insertColorData(ColorSetting color) async {
     Database db = await this.database;
     var result = await db.insert(colorTable, color.toMap());

@@ -29,11 +29,7 @@ Color listBackGroundColor = HexColor("#333333");
 Color dividerColor = HexColor("#efefef");
 
 bool isDark(BuildContext context) {
-  print(
-      "colorListCount(in isDark): ${Provider.of<ColorData>(context).colorListCount}");
   if (Provider.of<ColorData>(context).colorListCount > 0) {
-    print(
-        "colorList[0].colorMode(in isDark): ${Provider.of<ColorData>(context).colorList[0].colorMode}");
     if (Provider.of<ColorData>(context).colorList[0].colorMode == 0) {
       return false;
     } else {
@@ -42,10 +38,8 @@ bool isDark(BuildContext context) {
   } else {
     final colorMode = MediaQuery.of(context).platformBrightness;
     if (colorMode == Brightness.light) {
-      print("false");
       return false;
     } else {
-      print("true");
       return true;
     }
   }
