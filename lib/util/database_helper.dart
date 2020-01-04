@@ -26,6 +26,8 @@ class DatabaseHelper {
   String colScreenName = 'screen_name';
   String colPhotoURL = 'photo_url';
   String colUserId = 'user_id';
+  String colOauthToken = 'oauth_token';
+  String colOauthTokenSecret = 'oauth_token_secret';
 
   String colorTable = 'colorTable';
   String colColorMode = 'color';
@@ -78,7 +80,7 @@ class DatabaseHelper {
       );
       print("[Created UserSetting Table]");
       await txn.execute(
-        'CREATE TABLE $userSettingTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colDisplayName TEXT, $colScreenName TEXT, $colPhotoURL TEXT, $colUserId TEXT, $colDate TEXT)',
+        'CREATE TABLE $userSettingTable($colId INTEGER PRIMARY KEY AUTOINCREMENT, $colDisplayName TEXT, $colScreenName TEXT, $colPhotoURL TEXT, $colUserId TEXT, $colDate TEXT, $colOauthToken TEXT, $colOauthTokenSecret TEXT)',
       );
       print("[Created ColorSetting Table]");
       await txn.execute(

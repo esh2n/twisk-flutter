@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:twisk/models/task_data.dart';
 
 class FABBottomAppBarItem {
   FABBottomAppBarItem({this.iconData, this.text});
@@ -41,7 +43,9 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     widget.onTabSelected(index);
     setState(() {
       _selectedIndex = index;
+      print("updated: ${_selectedIndex}");
     });
+    Provider.of<TaskData>(context).changeSelectedTask(_selectedIndex);
   }
 
   @override
@@ -90,7 +94,9 @@ class FABBottomAppBarState extends State<FABBottomAppBar> {
     int index,
     ValueChanged<int> onPressed,
   }) {
-    Color color = _selectedIndex == index ? widget.selectedColor : widget.color;
+    Color color = Provider.of<TaskData>(context).selectedIndex == index
+        ? widget.selectedColor
+        : widget.color;
     return Expanded(
       child: SizedBox(
         height: widget.height,

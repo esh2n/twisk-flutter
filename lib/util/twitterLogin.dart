@@ -4,19 +4,16 @@ import 'package:provider/provider.dart';
 import 'package:twisk/models/user.dart';
 import 'package:twitter_oauth/twitter_oauth.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
 import 'package:twisk/screens/tasks_screen.dart';
 import 'package:twisk/colors.dart';
 import 'dart:async';
 import 'package:twisk/util/database_helper.dart';
-
 import 'package:twisk/apikey.dart';
 import 'package:intl/intl.dart';
 import 'package:twisk/models/user_data.dart';
 
 class TwitterOauthPage extends StatefulWidget {
   const TwitterOauthPage({Key key}) : super(key: key);
-
   @override
   _TwitterOauthPageState createState() => _TwitterOauthPageState();
 }
@@ -48,8 +45,45 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
+                  Container(
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(48.0),
+                        boxShadow: [
+                          new BoxShadow(color: Colors.black12, blurRadius: 20.0)
+                        ]),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: <Widget>[
+                        Container(
+                          margin: EdgeInsets.only(right: 30),
+                          child: CircleAvatar(
+                            child: Icon(
+                              Icons.dehaze,
+                              size: 30.0,
+                              color: getTextColor(_isDarkMode),
+                            ),
+                            backgroundColor: getTopButtonColor(_isDarkMode),
+                            radius: 30.0,
+                          ),
+                        ),
+                        Container(
+                          width: 60,
+                          height: 60,
+                          margin: EdgeInsets.only(right: 30),
+                          child: RawMaterialButton(
+                            onPressed: () {
+                              Scaffold.of(context).openDrawer();
+                              Provider.of<UserData>(context).updateUserList();
+                            },
+                            shape: new CircleBorder(),
+                            elevation: 0.0,
+                          ),
+                        )
+                      ],
+                    ),
+                  ),
                   SizedBox(
-                    height: 60.0,
+                    height: 10.0,
                   ),
                   Text(
                     'Login to Twitter',
@@ -257,8 +291,12 @@ class _TwitterWebViewState extends State<TwitterWebView> {
     final screenName = oauthToken["screen_name"];
     final photoURL = firebaseUser.photoUrl;
     final userId = oauthToken["user_id"];
+    final userOauthToken = oauthToken["oauth_token"];
+    final userOauthTokenSecret = oauthToken["oauth_token_secret"];
+
     final date = DateFormat.yMMMd().format(DateTime.now());
-    User userData = User(displayName, screenName, photoURL, userId, date);
+    User userData = User(displayName, screenName, photoURL, userId, date,
+        userOauthToken, userOauthTokenSecret);
     DatabaseHelper helper = DatabaseHelper();
     print("called insert method");
     await helper.insertUserData(userData).then((value) {

@@ -13,6 +13,7 @@ class TaskData extends ChangeNotifier {
   List<Task> monthlyTaskList;
   List<Task> yearlyTaskList;
   int selectedTask = 0;
+  int selectedIndex = 0;
 
   // void toggleColorMode() {
   //   isDarkMode = !isDarkMode;
@@ -105,6 +106,11 @@ class TaskData extends ChangeNotifier {
 
   void changeSelectedTask(int index) {
     this.selectedTask = index;
+    notifyListeners();
+  }
+
+  changeSelectedIndex(int index) {
+    this.selectedIndex = index;
     notifyListeners();
   }
 

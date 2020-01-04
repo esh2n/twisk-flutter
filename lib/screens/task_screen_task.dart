@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:twisk/colors.dart';
 import 'package:twisk/models/task.dart';
-import 'package:twisk/models/user.dart';
 import 'package:twisk/util/database_helper.dart';
 import 'package:twisk/models/task_data.dart';
 import 'package:twisk/screens/add_task_screen.dart';

@@ -1,53 +1,42 @@
 import 'package:twitter_api/twitter_api.dart';
 import 'package:twisk/apikey.dart';
 
-// class User {
-final _twitterOauth = new twitterApi(
-  consumerKey: consumerKey,
-  consumerSecret: consumerSecret,
-  token: token,
-  tokenSecret: tokenSecret,
-);
-
-// Make the request to twitter
-void getTwitterRequest() async {
+void getTwitterRequest(String screenName) async {
+  final _twitterOauth = new twitterApi(
+    consumerKey: consumerKey,
+    consumerSecret: consumerSecret,
+    token: token,
+    tokenSecret: tokenSecret,
+  );
   Future twitterRequest = _twitterOauth.getTwitterRequest(
-    // Http Method
     "GET",
-    // Endpoint you are trying to reach
-    // "statuses/user_timeline.json",
     "users/lookup.json",
-    // The options for the request
     options: {
-      // "user_id": "19025957",
-      // "user_id": "RhSLkhfexlhlgUpDIttkdDM54V23",
-      "screen_name": "luansan_1",
-      // "count": "20",
-      // "trim_user": "true",
-      // "tweet_mode": "extended", // Used to prevent truncating tweets
+      "screen_name": screenName,
     },
   );
-// Wait for the future to finish
   var res = await twitterRequest;
+  print(res.body);
 }
-// Future twitterRequest = _twitterOauth.getTwitterRequest(
-//   // Http Method
-//   "GET",
-//   // Endpoint you are trying to reach
-//   "statuses/user_timeline.json",
-//   // The options for the request
-//   options: {
-//     "user_id": "19025957",
-//     "screen_name": "TTCnotices",
-//     "count": "20",
-//     "trim_user": "true",
-//     "tweet_mode": "extended", // Used to prevent truncating tweets
-//   },
-// );
 
-// // Wait for the future to finish
-// var res = await twitterRequest;
-// }
+void postTwitterRequest(String oauthToken, String oauthTokenSecret) async {
+  final _twitterOauth = new twitterApi(
+    consumerKey: consumerKey,
+    consumerSecret: consumerSecret,
+    token: oauthToken,
+    tokenSecret: oauthTokenSecret,
+  );
+  Future twitterRequest = _twitterOauth.getTwitterRequest(
+    "POST",
+    "statuses/update.json",
+    options: {
+      "status": "Test Post From Flutter App With Twitter Web API!",
+    },
+  );
+  var res = await twitterRequest;
+  print(res.body);
+}
+
 class User {
   int _id;
   String _displayName;
@@ -55,11 +44,13 @@ class User {
   String _photoURL;
   String _date;
   String _userId;
+  String _oauthToken;
+  String _oauthTokenSecret;
 
   User(this._displayName, this._screenName, this._photoURL, this._userId,
-      this._date);
+      this._date, this._oauthToken, this._oauthTokenSecret);
   User.withId(this._id, this._displayName, this._screenName, this._photoURL,
-      this._userId, this._date);
+      this._userId, this._date, this._oauthToken, this._oauthTokenSecret);
 
   int get id => _id;
   String get displayName => _displayName;
@@ -67,6 +58,8 @@ class User {
   String get photoURL => _photoURL;
   String get userId => _userId;
   String get date => _date;
+  String get oauthToken => _oauthToken;
+  String get oauthTokenSecret => _oauthTokenSecret;
 
   set displayName(String value) {
     this._displayName = value;
@@ -88,6 +81,14 @@ class User {
     this._photoURL = value;
   }
 
+  set oauthToken(String value) {
+    this._oauthToken = value;
+  }
+
+  set oauthTokenSecret(String value) {
+    this._oauthTokenSecret = value;
+  }
+
   Map<String, dynamic> toMap() {
     var map = Map<String, dynamic>();
     if (id != null) {
@@ -98,6 +99,8 @@ class User {
     map['photo_url'] = _photoURL;
     map['user_id'] = _userId;
     map['date'] = _date;
+    map['oauth_token'] = _oauthToken;
+    map['oauth_token_secret'] = _oauthTokenSecret;
 
     return map;
   }
@@ -109,5 +112,7 @@ class User {
     this._photoURL = map['photo_url'];
     this._userId = map['user_id'];
     this._date = map['date'];
+    this._oauthToken = map['oauth_token'];
+    this._oauthTokenSecret = map['oauth_token_secret'];
   }
 }

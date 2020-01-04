@@ -18,7 +18,7 @@ class TasksScreen extends StatefulWidget {
 
 class _TasksScreenState extends State<TasksScreen> {
   DatabaseHelper databaseHelper = DatabaseHelper();
-  int selectedIndex = 0;
+  // int selectedIndex = 0;
 
   void initiarize(BuildContext context) {
     Provider.of<TaskData>(context).initializeData();
@@ -54,7 +54,12 @@ class _TasksScreenState extends State<TasksScreen> {
         notchedShape: CircularNotchedRectangle(),
         onTabSelected: (index) {
           setState(() {
-            selectedIndex = index;
+            Provider.of<TaskData>(context).changeSelectedIndex(index);
+            if (Provider.of<UserData>(context).userListCount > 0) {
+              // postTwitterRequest(
+              //     Provider.of<UserData>(context).userList[0].oauthToken,
+              //     Provider.of<UserData>(context).userList[0].oauthTokenSecret);
+            }
           });
         },
         items: [
@@ -132,6 +137,7 @@ class _TasksScreenState extends State<TasksScreen> {
                 ),
                 onTap: () {
                   Provider.of<TaskData>(context).changeSelectedTask(0);
+                  Provider.of<TaskData>(context).changeSelectedIndex(0);
                   Navigator.pop(context, true);
                 },
               ),
@@ -148,6 +154,8 @@ class _TasksScreenState extends State<TasksScreen> {
                 ),
                 onTap: () {
                   Provider.of<TaskData>(context).changeSelectedTask(1);
+                  Provider.of<TaskData>(context).changeSelectedIndex(0);
+
                   Navigator.pop(context, true);
                 },
               ),
@@ -164,6 +172,8 @@ class _TasksScreenState extends State<TasksScreen> {
                 ),
                 onTap: () {
                   Provider.of<TaskData>(context).changeSelectedTask(2);
+                  Provider.of<TaskData>(context).changeSelectedIndex(0);
+
                   Navigator.pop(context, true);
                 },
               ),
@@ -180,6 +190,8 @@ class _TasksScreenState extends State<TasksScreen> {
                 ),
                 onTap: () {
                   Provider.of<TaskData>(context).changeSelectedTask(3);
+                  Provider.of<TaskData>(context).changeSelectedIndex(0);
+
                   Navigator.pop(context, true);
                 },
               ),
@@ -233,7 +245,7 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Widget _buildChild() {
-    if (this.selectedIndex == 1) {
+    if (Provider.of<TaskData>(context).selectedIndex == 1) {
       return TwitterOauthPage();
     } else {
       return TaskScreenTask();
