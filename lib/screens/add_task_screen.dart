@@ -1,11 +1,20 @@
+import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
+import 'dart:io';
+import 'dart:async' show Future;
+import 'dart:typed_data';
+import 'package:flutter/services.dart' show rootBundle;
+
 import 'package:flutter/material.dart';
 import 'package:twisk/colors.dart';
 import 'package:twisk/models/task.dart';
 import 'package:provider/provider.dart';
 import 'package:twisk/models/task_data.dart';
 import 'package:intl/intl.dart';
+import 'package:twisk/models/user.dart';
 import 'package:twisk/util/database_helper.dart';
-import 'package:twisk/screens/tasks_screen.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
+import 'package:twisk/models/user_data.dart';
 
 class AddTaskScreen extends StatefulWidget {
   final String appBarTitle;
@@ -21,6 +30,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   String appBarTitle;
   Task task;
+  bool doTweet = false;
 
   _AddTaskScreenState(this.appBarTitle, this.task);
 
@@ -29,7 +39,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   @override
   Widget build(BuildContext context) {
-    TextStyle textStyle = Theme.of(context).textTheme.title;
     titleController.text = task.name;
     descriptionController.text = task.description;
     double containerHeight = MediaQuery.of(context).size.height;
@@ -128,6 +137,27 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 ),
               ),
             ),
+            Padding(
+              padding: EdgeInsets.only(top: 15.0, bottom: 15.0),
+              child: SwitchListTile(
+                title: Text(
+                  'Tweet',
+                  style: TextStyle(
+                    color: getTextColor(_isDarkMode),
+                  ),
+                ),
+                value: doTweet,
+                onChanged: (bool value) {
+                  setState(() {
+                    this.doTweet = value;
+                  });
+                },
+                secondary: Icon(
+                  EvaIcons.twitter,
+                  color: getTextColor(_isDarkMode),
+                ),
+              ),
+            ),
             Row(
               children: <Widget>[
                 Expanded(
@@ -140,7 +170,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     ),
                     color: getAddButtonColor(_isDarkMode),
                     onPressed: () {
-                      _save();
+                      _save(doTweet);
                     },
                   ),
                 ),
@@ -186,7 +216,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     task.description = descriptionController.text;
   }
 
-  void _save() async {
+  void _save(bool doTweet) async {
     Navigator.pop(context, true);
     task.date = DateFormat.yMMMd().format(DateTime.now());
     int result;
@@ -198,9 +228,33 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
           task, Provider.of<TaskData>(context).selectedTask);
     }
     if (result != 0) {
+      if (Provider.of<UserData>(context).userListCount > 0) {
+        if (doTweet) {
+          // postTweet(task.description);
+          postImage();
+        }
+      }
       // Success
     } else {
       // Failure
+    }
+  }
+
+  void postImage() async {
+    ByteData bytefata = await rootBundle.load('images/flutter_image.png');
+    Uint8List pngBytes = bytefata.buffer.asUint8List();
+    print(pngBytes);
+    String bs64 = base64Encode(pngBytes);
+    print(bs64);
+  }
+
+  void postTweet(String sentence) {
+    if (Provider.of<UserData>(context).userListCount > 0) {
+      postTwitterRequest(
+        Provider.of<UserData>(context).userList[0].oauthToken,
+        Provider.of<UserData>(context).userList[0].oauthTokenSecret,
+        sentence,
+      );
     }
   }
 

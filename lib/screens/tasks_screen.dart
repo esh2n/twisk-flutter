@@ -10,6 +10,7 @@ import 'package:twisk/models/task_data.dart';
 import 'package:twisk/util/twitterLogin.dart';
 import 'package:twisk/models/user_data.dart';
 import 'package:twisk/models/color_data.dart';
+import 'package:twisk/models/user.dart';
 
 class TasksScreen extends StatefulWidget {
   @override
@@ -55,11 +56,6 @@ class _TasksScreenState extends State<TasksScreen> {
         onTabSelected: (index) {
           setState(() {
             Provider.of<TaskData>(context).changeSelectedIndex(index);
-            if (Provider.of<UserData>(context).userListCount > 0) {
-              // postTwitterRequest(
-              //     Provider.of<UserData>(context).userList[0].oauthToken,
-              //     Provider.of<UserData>(context).userList[0].oauthTokenSecret);
-            }
           });
         },
         items: [

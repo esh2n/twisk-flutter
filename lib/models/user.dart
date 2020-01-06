@@ -1,5 +1,6 @@
-import 'package:twitter_api/twitter_api.dart';
+// import 'package:twitter_api/twitter_api.dart';
 import 'package:twisk/apikey.dart';
+import 'package:twisk/util/twitter_api.dart';
 
 void getTwitterRequest(String screenName) async {
   final _twitterOauth = new twitterApi(
@@ -19,7 +20,8 @@ void getTwitterRequest(String screenName) async {
   print(res.body);
 }
 
-void postTwitterRequest(String oauthToken, String oauthTokenSecret) async {
+void postTwitterRequest(
+    String oauthToken, String oauthTokenSecret, String sentence) async {
   final _twitterOauth = new twitterApi(
     consumerKey: consumerKey,
     consumerSecret: consumerSecret,
@@ -30,7 +32,7 @@ void postTwitterRequest(String oauthToken, String oauthTokenSecret) async {
     "POST",
     "statuses/update.json",
     options: {
-      "status": "Test Post From Flutter App With Twitter Web API!",
+      "status": "New Task Posted! ✅\"${sentence}\"  #Twisk",
     },
   );
   var res = await twitterRequest;
