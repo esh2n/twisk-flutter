@@ -1,10 +1,6 @@
 import 'dart:convert';
-import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'dart:async' show Future;
 import 'dart:typed_data';
 import 'package:flutter/services.dart' show rootBundle;
-
 import 'package:flutter/material.dart';
 import 'package:twisk/colors.dart';
 import 'package:twisk/models/task.dart';
@@ -230,22 +226,17 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     if (result != 0) {
       if (Provider.of<UserData>(context).userListCount > 0) {
         if (doTweet) {
-          // postTweet(task.description);
-          postImage();
+          if (task.name.length >= task.description.length) {
+            postTweet(task.name);
+          } else {
+            postTweet(task.description);
+          }
         }
       }
       // Success
     } else {
       // Failure
     }
-  }
-
-  void postImage() async {
-    ByteData bytefata = await rootBundle.load('images/flutter_image.png');
-    Uint8List pngBytes = bytefata.buffer.asUint8List();
-    print(pngBytes);
-    String bs64 = base64Encode(pngBytes);
-    print(bs64);
   }
 
   void postTweet(String sentence) {

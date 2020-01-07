@@ -239,6 +239,7 @@ class twitterApi {
     }
     // Repeat for POST
     else if (method.toUpperCase() == "POST") {
+      print("sasa: ${Uri.https("api.twitter.com", "/1.1/" + url, options)}");
       response = post(Uri.https("api.twitter.com", "/1.1/" + url, options),
           headers: {
             "Authorization": authHeader,
@@ -287,11 +288,6 @@ class twitterApi {
 
   /// This function will create a signature for the request
   _generateSignature(method, url, opt) {
-    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-
-    // print(opt);
-    // print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-
     // The list of key-value pairs that will be added to the paramString once sorted
     var paramPairs = [];
     // The param string that will be added to the output
@@ -304,11 +300,12 @@ class twitterApi {
       "oauth_signature_method": _oauth_signature_method,
       "oauth_timestamp": _oauth_timestamp,
       "oauth_token": _oauth_token,
-      "oauth_version": _oauth_version
+      "oauth_version": _oauth_version,
     };
 
     // Join the 2 paramater maps
     params.addAll(opt);
+    // print(params);
 
     // Loop through the parameter map and add each pair to paramPairs
     params.forEach((k, v) {
@@ -331,21 +328,22 @@ class twitterApi {
 
     // Put all the params together into paramString
     paramString = paramPairs.join("&");
-    // paramString = paramPairs.join("%26");
-    // print(paramString);
-
-    // Start creating the output string
-    // Convert the HTTP Method to uppercase and set the output string equal to this value.
-    // Append the ‘&’ character to the output string.
+    paramString = paramString.replaceAll('+', '%20');
+    paramString = paramString.replaceAll('%7E', '~');
+    paramString = paramString.replaceAll('%A%', "%0A%");
+    paramString = paramString.replaceAll(new RegExp(r"%A[a-z]"), "%0A[a-z]");
+    paramString = paramString.replaceAll('%A%', "%0A%");
     var output = method.toUpperCase() + "&";
     // Percent encode the URL and append it to the output string.
     // Append the ‘&’ character to the output string.
     output += _percentEncode(_baseUrl + url) + "&";
+
     // Percent encode the parameter string and append it to the output string.
     output += _percentEncode(paramString);
+
     // Now output is the signature base string
     List<int> signatureBaseString = utf8.encode(output);
-    // print(signatureBaseString);
+    // print("dadasfasf: ${signatureBaseString}");
     // Get a signing key by combining consumer secret and token secret
     List<int> signingKey = utf8.encode(
         _percentEncode(_consumerSecret) + "&" + _percentEncode(_tokenSecret));
@@ -354,7 +352,6 @@ class twitterApi {
     var hmacSha1 = new Hmac(sha1, signingKey);
     // Put the signature base string into the hmac object
     var digest = hmacSha1.convert(signatureBaseString);
-    print(digest);
     // Base64 encode the bites returned from the hmac-sha1 operation
     return base64Url.encode(digest.bytes);
   }
@@ -377,6 +374,7 @@ class twitterApi {
         output += _percentEncodeValuesMap[char];
       }
     }
+    print(output);
     return output;
   }
 

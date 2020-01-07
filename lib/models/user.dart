@@ -1,4 +1,3 @@
-// import 'package:twitter_api/twitter_api.dart';
 import 'package:twisk/apikey.dart';
 import 'package:twisk/util/twitter_api.dart';
 
@@ -32,7 +31,9 @@ void postTwitterRequest(
     "POST",
     "statuses/update.json",
     options: {
-      "status": "New Task Posted! ✅\"${sentence}\"  #Twisk",
+      "status": "New Task Posted! ✅${sentence}  #Twisk",
+      // "status": "だ",
+      "status": "New Task Posted!\n✅${sentence}\n\n#Twisk\n#今日の積み上げ",
     },
   );
   var res = await twitterRequest;
