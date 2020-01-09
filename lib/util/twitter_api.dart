@@ -239,14 +239,12 @@ class twitterApi {
     }
     // Repeat for POST
     else if (method.toUpperCase() == "POST") {
-      print("sasa: ${Uri.https("api.twitter.com", "/1.1/" + url, options)}");
       response = post(Uri.https("api.twitter.com", "/1.1/" + url, options),
           headers: {
             "Authorization": authHeader,
             "Content-Type": "application/json"
           }).timeout(Duration(seconds: timeout));
     }
-
     // Return the future
     return response;
   }

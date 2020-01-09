@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "57079864786",
+    "firebase_url": "https://twisk-flutter.firebaseio.com",
+    "project_id": "twisk-flutter",
+    "storage_bucket": "twisk-flutter.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57079864786:android:3f878e99380cb90122fc0b",
+        "android_client_info": {
+          "package_name": "work.shunyaendoh.twisk"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "57079864786-8p7i3gi2ljk4sc0afivte4n9a31jhaoo.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADGRteX6CEfcPv3FOuK_ipRzCeoqlsdzs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "57079864786-8p7i3gi2ljk4sc0afivte4n9a31jhaoo.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "57079864786-nkotsd1oj4r58ae5as5q7ipq6avp3cdc.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "work.shunyaendoh.twisk"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

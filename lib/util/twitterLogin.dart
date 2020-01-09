@@ -32,6 +32,7 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     bool _isDarkMode = isDark(context);
     return Scaffold(
       backgroundColor: getMainColor(_isDarkMode),
@@ -119,7 +120,8 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
                     Container(
-                      height: 200,
+                      height: height * 0.12,
+                      // height: height * 0.223214286,
                     ),
                     Container(
                         child: FutureBuilder<Widget>(
@@ -148,6 +150,7 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
     final FirebaseAuth _auth = FirebaseAuth.instance;
     FirebaseUser user = await _auth.currentUser();
     if (user != null) {
+      print("user exist");
       return ButtonTheme(
         minWidth: 150,
         height: 50,
@@ -169,6 +172,7 @@ class _TwitterOauthPageState extends State<TwitterOauthPage> {
         ),
       );
     } else {
+      print("user doesn't exist");
       return ButtonTheme(
         minWidth: 150,
         height: 50,

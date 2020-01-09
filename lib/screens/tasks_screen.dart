@@ -10,7 +10,6 @@ import 'package:twisk/models/task_data.dart';
 import 'package:twisk/util/twitterLogin.dart';
 import 'package:twisk/models/user_data.dart';
 import 'package:twisk/models/color_data.dart';
-import 'package:twisk/models/user.dart';
 
 class TasksScreen extends StatefulWidget {
   @override
@@ -30,6 +29,7 @@ class _TasksScreenState extends State<TasksScreen> {
 
   @override
   Widget build(BuildContext context) {
+    double height = MediaQuery.of(context).size.height;
     initiarize(context);
     bool _isDarkMode = isDark(context);
     return Scaffold(
@@ -101,10 +101,10 @@ class _TasksScreenState extends State<TasksScreen> {
                       return Text("");
                     }),
                 currentAccountPicture: CircleAvatar(
-                  radius: 30,
+                  radius: height * 0.0335,
                   backgroundColor: getMainColor(_isDarkMode),
                   child: FutureBuilder<Widget>(
-                      future: getUserImage(),
+                      future: getUserImage(height),
                       builder: (BuildContext context,
                           AsyncSnapshot<Widget> snapshot) {
                         if (snapshot.hasData) {
@@ -113,7 +113,7 @@ class _TasksScreenState extends State<TasksScreen> {
                         return ClipOval(
                           child: Icon(
                             Icons.account_circle,
-                            size: 70,
+                            size: height * 0.0781,
                             color: Colors.white,
                           ),
                         );
@@ -197,9 +197,7 @@ class _TasksScreenState extends State<TasksScreen> {
               Expanded(
                 child: Container(),
               ),
-              Divider(
-                color: getDividerColor(_isDarkMode),
-              ),
+              getExpandWithContainer(height, _isDarkMode),
               SwitchListTile(
                 title: Text(
                   'Color Mode',
@@ -230,14 +228,32 @@ class _TasksScreenState extends State<TasksScreen> {
                   Navigator.pop(context, true);
                 },
               ),
-              Container(
-                height: 30.0,
-              ),
+              getBottomContainer(height)
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget getBottomContainer(double height) {
+    if (height <= 568) {
+      return Container();
+    } else {
+      return Container(
+        height: height * 0.0335,
+      );
+    }
+  }
+
+  Widget getExpandWithContainer(double height, bool _isDarkMode) {
+    if (height <= 568) {
+      return Container();
+    } else {
+      return Divider(
+        color: getDividerColor(_isDarkMode),
+      );
+    }
   }
 
   Widget _buildChild() {
@@ -248,14 +264,14 @@ class _TasksScreenState extends State<TasksScreen> {
     }
   }
 
-  Future<Widget> getUserImage() async {
+  Future<Widget> getUserImage(double height) async {
     int count = Provider.of<UserData>(context).userListCount;
     if (count > 0) {
       if (Provider.of<UserData>(context).userList[0].photoURL != null) {
         return ClipOval(
           child: Image.network(
             Provider.of<UserData>(context).userList[0].photoURL,
-            height: 70,
+            height: height * 0.0781,
             fit: BoxFit.cover,
           ),
         );
@@ -264,7 +280,7 @@ class _TasksScreenState extends State<TasksScreen> {
     return ClipOval(
       child: Icon(
         Icons.account_circle,
-        size: 70,
+        size: height * 0.0781,
         color: Colors.white,
       ),
     );
